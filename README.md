@@ -37,6 +37,30 @@ Checklist rápido en Vercel para resolver 404 en Next.js (Pages Router):
 - [Reglas de negocio y compliance](#reglas-business-y-compliance)
 - [SLA y expectativas](#sla-y-expectativas)
 
+## Resumen ejecutivo
+Plataforma web CRM para el ecosistema inmobiliario con enfoque en rendimiento, movilidad y analítica avanzada.
+- Interfaz única para leads, clientes y propiedades.
+- Actualizaciones en tiempo real (WebSocket) y soporte offline (PWA).
+- Analytics con KPIs, embudos, pronósticos y reportes personalizables.
+- Integraciones clave: Base Centralizada, Asesor Digital IA, Google/Microsoft, S3/CDN.
+- Seguridad enterprise: MFA, RBAC granular, auditoría, cifrado en tránsito y reposo.
+- Escalabilidad horizontal, monitoreo end-to-end y CI/CD con Vercel.
+
+## Estado del proyecto
+- Código fuente: aún no inicializado en esta rama (sólo `.gitignore` y `README.md`).
+- Despliegue Vercel: 404 NOT_FOUND (ver sección Producción para checklist).
+
+## Siguientes pasos sugeridos
+1) Inicializar base Next.js + TypeScript.
+   - create-next-app (App Router o Pages Router).
+   - Scripts estándar: `dev`, `build`, `start`.
+2) Configurar Deploy en Vercel.
+   - Framework Preset: Next.js, Root Directory: raíz del repo.
+   - Revisar logs de build tras primer push.
+3) Preparar API mock (pages/api o route handlers) y páginas básicas.
+4) Añadir tema de UI, layout y sistema de diseño.
+5) Conectar con Base Centralizada (ambiente de staging) y RTK Query.
+
 ## Cómo ejecutar (local)
 Requisitos:
 - Node.js 18 o superior
@@ -534,3 +558,19 @@ Desarrolla una plataforma web CRM integral que sirva como interfaz principal del
 - **Revenue Impact:** Measurable ROI + cost reduction demonstration
 - **User Adoption:** >90% active daily users + feature utilization
 - **Integration Success:** Seamless data flow + zero data loss migrations
+
+## Variables de entorno
+Copia `.env.example` a `.env.local` y completa las credenciales (no las publiques).
+- `NEXT_PUBLIC_SITE_URL` = URL del sitio (ej: http://localhost:3000)
+- `NEXT_PUBLIC_API_URL` = URL base de la API (ej: http://localhost:3000/api)
+- `NEXT_PUBLIC_WS_URL` = URL de WebSocket (ej: ws://localhost:3001)
+- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` = clave de Maps (frontend)
+- `SENDGRID_API_KEY` = email transaccional (backend)
+- `SENTRY_DSN` = monitoreo de errores
+
+## Convenciones de desarrollo y contribución
+- Ramificación: feature/*, fix/*, docs/*, chore/*; PRs con revisión obligatoria.
+- Commits: Conventional Commits (feat, fix, docs, chore, refactor, test, build).
+- Estilo: ESLint + Prettier; TypeScript estricto.
+- Testing: Jest + Testing Library; E2E con Cypress/Playwright.
+- CI/CD: GitHub Actions + Vercel (preview por PR, producción en main/master).
