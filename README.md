@@ -8,7 +8,7 @@
 
 ## Producción (Vercel)
 - URL: https://plataforma-web-gules.vercel.app/
-- Estado actual: pendiente de revalidación tras último deploy.
+- Estado actual: EN LÍNEA ✅
 
 Checklist rápido en Vercel para resolver 404 en Next.js (Pages Router):
 - Root Directory: carpeta raíz del repo (no un subdirectorio)
