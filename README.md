@@ -10,6 +10,10 @@
 - URL: https://plataforma-web-gules.vercel.app/
 - Estado actual: EN LÍNEA ✅
 
+Rutas actuales:
+- Páginas: `/`, `/dashboard`, `/leads`, `/properties`, `/404`
+- APIs: `/api/health`, `/api/leads` (GET/POST), `/api/properties` (GET/POST)
+
 Checklist rápido en Vercel para resolver 404 en Next.js (Pages Router):
 - Root Directory: carpeta raíz del repo (no un subdirectorio)
 - Framework Preset: Next.js
@@ -48,7 +52,13 @@ Plataforma web CRM para el ecosistema inmobiliario con enfoque en rendimiento, m
 
 ## Estado del proyecto
 - Código fuente: base Next.js + TypeScript con MUI integrada (Leads, Propiedades, Dashboard y 404 personalizada).
-- Despliegue Vercel: pendiente revalidación; ver sección Producción para checklist.
+- Despliegue Vercel: EN LÍNEA ✅ y verificado (ver sección Producción para checklist).
+
+### Estado de implementación (UX/UI y Backend)
+- UX/UI implementado: tema MUI con modo claro/oscuro, Layout con AppBar y navegación, páginas Inicio, Dashboard, Leads y Propiedades, 404 personalizada.
+- UX/UI planificado: Drawer responsive, validación con React Hook Form + Yup, gráficos en Dashboard (Recharts/Victory), accesibilidad AA.
+- Backend implementado: API Routes de Next.js con almacenamiento en memoria para leads y propiedades, endpoint de healthcheck.
+- Backend planificado: autenticación (Auth0/NextAuth), base de datos (PostgreSQL), integración con Base Centralizada, almacenamiento de archivos (S3/CDN), colas y monitoreo.
 
 ## Siguientes pasos sugeridos
 1) Añadir Drawer responsive y páginas de autenticación.
@@ -237,9 +247,9 @@ Desarrolla una plataforma web CRM integral que sirva como interfaz principal del
 
 ### Frontend Stack Moderno:
 - **Framework:** React 18 + TypeScript para type safety
-- **Meta-framework:** Next.js 13 con App Router para SSR + performance
+- **Meta-framework:** Next.js 13 con Pages Router (src/pages) para SSR + performance
 - **State Management:** Redux Toolkit + RTK Query para server state
-- **UI Framework:** Material-UI v5 con tema customizado + design system
+- **UI Framework:** Material-UI v7 con tema customizado + design system
 - **Forms:** React Hook Form + Yup schema validation
 - **Charts/Visualization:** Recharts + Victory + D3.js para analytics complejos
 - **Maps:** Google Maps JavaScript API + custom clustering
@@ -450,9 +460,9 @@ Desarrolla una plataforma web CRM integral que sirva como interfaz principal del
 ## STACK TECNOLÓGICO COMPLETO:
 
 ### Frontend Complete Stack:
-- **Core:** React 18 + TypeScript + Next.js 13 (App Router)
+- **Core:** React 18 + TypeScript + Next.js 13 (Pages Router)
 - **State:** Redux Toolkit + RTK Query + React Query para server state
-- **UI:** Material-UI v5 + Emotion + Framer Motion para animations
+- **UI:** Material-UI v7 + Emotion + Framer Motion para animations
 - **Forms:** React Hook Form + Yup validation + conditional logic
 - **Charts:** Recharts + Victory + D3.js + Chart.js para different needs
 - **Maps:** Google Maps API + Mapbox + clustering algorithms
