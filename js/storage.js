@@ -57,3 +57,24 @@ export function setSession(session) {
 export function clearSession() {
   localStorage.removeItem(`${NS}:session`);
 }
+
+// Simple, non-cryptographic hashing (FNV-1a 32-bit) for passwords with salt.
+// Note: This is only to avoid storing plaintext in localStorage; it is NOT secure.
+export function makeSalt(len = 16) {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let s = '';
+  for (let i = 0; i < len; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));
+  return s;
+}
+
+export function hashPassword(password, salt) {
+  const str = `${salt}:${password}`;
+  let h = 0x811c9dc5; // FNV-1a offset basis
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    // 32-bit FNV prime multiplication with overflow
+    h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+  }
+  // Convert to unsigned 32-bit and hex
+  return (h >>> 0).toString(16).padStart(8, '0');
+}

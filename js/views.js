@@ -1,5 +1,5 @@
 // Views: HTML renderers + binders (clean)
-import { db, uid, setSession, clearSession } from './storage.js';
+import { db, uid, setSession, clearSession, makeSalt, hashPassword } from './storage.js';
 
 // Dashboard
 export function DashboardView() {
@@ -38,9 +38,15 @@ export function DashboardView() {
 // Login
 export function LoginView(){
   return `
-  <section class="card" style="max-width:460px; margin:48px auto">
-    <h2>Iniciar sesión</h2>
-    <p class="small">Demo sin backend: se valida en el cliente.</p>
+  <section class="card" style="max-width:520px; margin:48px auto">
+    <h2>Acceso</h2>
+    <p class="small">Sin backend. Crea una cuenta local en tu navegador y entra con usuario y contraseña.</p>
+
+    <div class="tabs row" style="gap:8px; margin-bottom:12px">
+      <button class="btn" id="tabLogin">Iniciar sesión</button>
+      <button class="btn ghost" id="tabRegister">Crear cuenta</button>
+    </div>
+
     <form id="formLogin" class="grid" style="grid-template-columns: 1fr; gap:12px">
       <div>
         <label>Usuario o Email</label>
@@ -52,29 +58,96 @@ export function LoginView(){
       </div>
       <div class="row">
         <button class="btn" type="submit">Entrar</button>
-        <button class="btn ghost" type="button" id="btnSkip">Omitir</button>
       </div>
-      <div class="small">Sugerencia: importa usuarios en Configuración o usa Omitir para entrar como invitado.</div>
+    </form>
+
+    <form id="formRegister" class="grid" style="grid-template-columns: 1fr 1fr; gap:12px; display:none; margin-top:8px">
+      <div style="grid-column: span 2">
+        <label>Nombre</label>
+        <input class="input" name="name" required />
+      </div>
+      <div>
+        <label>Email</label>
+        <input class="input" name="email" type="email" required />
+      </div>
+      <div>
+        <label>Usuario</label>
+        <input class="input" name="username" required />
+      </div>
+      <div>
+        <label>Contraseña</label>
+        <input class="input" name="pass" type="password" minlength="4" required />
+      </div>
+      <div>
+        <label>Rol</label>
+        <select class="input" name="role">
+          <option value="asesor">asesor</option>
+          <option value="admin">admin</option>
+        </select>
+      </div>
+      <div style="grid-column: span 2" class="row">
+        <button class="btn" type="submit">Crear cuenta</button>
+      </div>
+      <div class="small" style="grid-column: span 2">Las contraseñas se guardan con hash y salt sólo para evitar texto plano (no seguro para producción).</div>
     </form>
   </section>`;
 }
 
 export function bindLoginEvents(root){
   const form = root.querySelector('#formLogin');
-  const btnSkip = root.querySelector('#btnSkip');
-  btnSkip?.addEventListener('click', ()=>{
-    setSession({ user: { id:'guest', name:'Invitado', role:'asesor' }, at: Date.now() });
-    location.hash = '#/dashboard';
-  });
+  const formReg = root.querySelector('#formRegister');
+  const tabLogin = root.querySelector('#tabLogin');
+  const tabRegister = root.querySelector('#tabRegister');
+
+  function show(tab){
+    if (!form || !formReg || !tabLogin || !tabRegister) return;
+    const loginActive = tab === 'login';
+    form.style.display = loginActive ? 'grid' : 'none';
+    formReg.style.display = loginActive ? 'none' : 'grid';
+    tabLogin.classList.toggle('ghost', !loginActive);
+    tabRegister.classList.toggle('ghost', loginActive);
+  }
+  tabLogin?.addEventListener('click', ()=>show('login'));
+  tabRegister?.addEventListener('click', ()=>show('register'));
+
   form?.addEventListener('submit', (e)=>{
     e.preventDefault();
     const data = Object.fromEntries(new FormData(form));
     const users = db.get('users', []);
-    const found = users.find(u => (u.email===data.user || u.name===data.user));
-    if (!found) { alert('Usuario no encontrado. Importa usuarios en Configuración.'); return; }
-    setSession({ user: found, at: Date.now() });
+    const found = users.find(u => (u.email===data.user || u.username===data.user || u.name===data.user));
+    if (!found) { alert('Usuario no encontrado'); return; }
+    if (!found.salt || !found.hash) { alert('El usuario no tiene contraseña configurada. Crea una nuevamente.'); return; }
+    const h = hashPassword(String(data.pass||''), found.salt);
+    if (h !== found.hash) { alert('Contraseña incorrecta'); return; }
+    setSession({ user: { id: found.id, name: found.name, email: found.email, role: found.role || 'asesor' }, at: Date.now() });
     location.hash = '#/dashboard';
   });
+
+  formReg?.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(formReg));
+    const users = db.get('users', []);
+    const exists = users.find(u => u.email===data.email || u.username===data.username);
+    if (exists) { alert('Ya existe un usuario con ese email o usuario.'); return; }
+    const salt = makeSalt();
+    const hash = hashPassword(String(data.pass||''), salt);
+    const user = {
+      id: uid('usr'),
+      name: String(data.name||'').trim(),
+      email: String(data.email||'').trim(),
+      username: String(data.username||'').trim(),
+      role: data.role || 'asesor',
+      salt, hash,
+      createdAt: new Date().toISOString(),
+    };
+    users.push(user);
+    db.set('users', users);
+    alert('Cuenta creada. Ya puedes iniciar sesión.');
+    show('login');
+  });
+
+  // default view
+  show('login');
 }
 
 // Clientes
