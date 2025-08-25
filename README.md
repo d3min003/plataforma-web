@@ -4,6 +4,20 @@
 ![node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
 ![next](https://img.shields.io/badge/Next.js-13%2B-black)
 ![typescript](https://img.shields.io/badge/TypeScript-5%2B-3178C6)
+[![vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)](https://plataforma-web-gules.vercel.app/)
+
+## Producción (Vercel)
+- URL: https://plataforma-web-gules.vercel.app/
+- Estado actual: 404 NOT_FOUND (según verificación automática).
+
+Checklist rápido en Vercel para resolver 404 en Next.js (Pages Router):
+- Root Directory: carpeta raíz del repo (no un subdirectorio)
+- Framework Preset: Next.js
+- Build Command: `npm run build` (por defecto)
+- Output: `.next` (por defecto, no usar `out` salvo `next export`)
+- package.json: debe existir con scripts `dev`, `build`, `start`
+- Página de inicio: `pages/index.tsx` presente (ya existe en este repo)
+- Logs de deploy: revisar “Build Logs” para errores de instalación/build
 
 ## Tabla de contenidos
 - [Resumen del proyecto (CRM Web)](#resumen-del-proyecto-crm-web)
