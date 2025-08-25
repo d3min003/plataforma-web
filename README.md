@@ -1,27 +1,27 @@
 # 💻 PROYECTO 3: PLATAFORMA WEB (CRM/PORTAL)
 
-![status](https://img.shields.io/badge/status-WIP-blue)
+![estado](https://img.shields.io/badge/estado-EN%20DESARROLLO-blue)
 ![node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
 ![next](https://img.shields.io/badge/Next.js-13%2B-black)
 ![typescript](https://img.shields.io/badge/TypeScript-5%2B-3178C6)
 
-## Tabla de Contenidos
-- [Prompt Principal - Plataforma Web CRM](#prompt-principal---plataforma-web-crm)
+## Tabla de contenidos
+- [Resumen del proyecto (CRM Web)](#resumen-del-proyecto-crm-web)
 - [Cómo ejecutar (local)](#cómo-ejecutar-local)
-- [MÓDULOS PRINCIPALES DETALLADOS](#módulos-principales-detallados)
-- [ARQUITECTURA TÉCNICA DETALLADA](#arquitectura-técnica-detallada)
-- [INTEGRACIÓN ECOSISTEMA](#integración-ecosistema)
-- [USER EXPERIENCE OPTIMIZADA](#user-experience-optimizada)
-- [SEGURIDAD Y AUTENTICACIÓN](#seguridad-y-autenticación)
-- [PERFORMANCE Y ESCALABILIDAD](#performance-y-escalabilidad)
-- [TESTING Y CALIDAD](#testing-y-calidad)
-- [ANALYTICS Y REPORTING](#analytics-y-reporting)
-- [ENTREGABLES ESPECÍFICOS](#entregables-específicos)
-- [PIPELINE DESARROLLO](#pipeline-desarrollo)
-- [STACK TECNOLÓGICO COMPLETO](#stack-tecnológico-completo)
-- [MONITOREO Y OPERACIONES](#monitoreo-y-operaciones)
-- [REGLAS BUSINESS Y COMPLIANCE](#reglas-business-y-compliance)
-- [SLA Y EXPECTATIVAS](#sla-y-expectativas)
+- [Módulos principales detallados](#módulos-principales-detallados)
+- [Arquitectura técnica detallada](#arquitectura-técnica-detallada)
+- [Integración ecosistema](#integración-ecosistema)
+- [Experiencia de usuario](#user-experience-optimizada)
+- [Seguridad y autenticación](#seguridad-y-autenticación)
+- [Performance y escalabilidad](#performance-y-escalabilidad)
+- [Testing y calidad](#testing-y-calidad)
+- [Analytics y reporting](#analytics-y-reporting)
+- [Entregables específicos](#entregables-específicos)
+- [Pipeline de desarrollo](#pipeline-desarrollo)
+- [Stack tecnológico completo](#stack-tecnológico-completo)
+- [Monitoreo y operaciones](#monitoreo-y-operaciones)
+- [Reglas de negocio y compliance](#reglas-business-y-compliance)
+- [SLA y expectativas](#sla-y-expectativas)
 
 ## Cómo ejecutar (local)
 Requisitos:
@@ -31,31 +31,31 @@ Requisitos:
 Pasos (PowerShell en Windows):
 
 ```powershell
-# 1) Instalar dependencias (usa uno)
+# 1) Instalar dependencias (usar uno)
 npm install
 # pnpm install
 # yarn install
 
-# 2) Ejecutar modo desarrollo
+# 2) Ejecutar en modo desarrollo
 # Si existe script: "dev" en package.json
 npm run dev
 # Alternativa directa si no hay script:
 npx next dev
 
-# 3) Build de producción
+# 3) Compilar para producción
 npm run build
 # Alternativa:
 npx next build
 
-# 4) Ejecutar producción (necesita build previo)
+# 4) Iniciar en producción (requiere build previo)
 npm run start
 # Alternativa:
 npx next start
 ```
 
-> Nota: Si aún no existe package.json, inicializa el proyecto con `npm init -y` y añade Next.js/React/TS según la guía oficial. Este repo ya incluye estructura típica de Next.js.
+> Nota: Si no existe package.json, inicializa con `npm init -y` y añade Next.js/React/TS. Este repo ya tiene estructura típica de Next.js.
 
-## Prompt Principal - Plataforma Web CRM
+## Resumen del proyecto (CRM Web)
 
 **CONTEXTO:**
 Desarrolla una plataforma web CRM integral que sirva como interfaz principal del ecosistema inmobiliario, integrándose seamlessly con Base Centralizada y Asesor Digital IA.
