@@ -1,4 +1,60 @@
 # 💻 PROYECTO 3: PLATAFORMA WEB (CRM/PORTAL)
+
+![status](https://img.shields.io/badge/status-WIP-blue)
+![node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
+![next](https://img.shields.io/badge/Next.js-13%2B-black)
+![typescript](https://img.shields.io/badge/TypeScript-5%2B-3178C6)
+
+## Tabla de Contenidos
+- [Prompt Principal - Plataforma Web CRM](#prompt-principal---plataforma-web-crm)
+- [Cómo ejecutar (local)](#cómo-ejecutar-local)
+- [MÓDULOS PRINCIPALES DETALLADOS](#módulos-principales-detallados)
+- [ARQUITECTURA TÉCNICA DETALLADA](#arquitectura-técnica-detallada)
+- [INTEGRACIÓN ECOSISTEMA](#integración-ecosistema)
+- [USER EXPERIENCE OPTIMIZADA](#user-experience-optimizada)
+- [SEGURIDAD Y AUTENTICACIÓN](#seguridad-y-autenticación)
+- [PERFORMANCE Y ESCALABILIDAD](#performance-y-escalabilidad)
+- [TESTING Y CALIDAD](#testing-y-calidad)
+- [ANALYTICS Y REPORTING](#analytics-y-reporting)
+- [ENTREGABLES ESPECÍFICOS](#entregables-específicos)
+- [PIPELINE DESARROLLO](#pipeline-desarrollo)
+- [STACK TECNOLÓGICO COMPLETO](#stack-tecnológico-completo)
+- [MONITOREO Y OPERACIONES](#monitoreo-y-operaciones)
+- [REGLAS BUSINESS Y COMPLIANCE](#reglas-business-y-compliance)
+- [SLA Y EXPECTATIVAS](#sla-y-expectativas)
+
+## Cómo ejecutar (local)
+Requisitos:
+- Node.js 18 o superior
+- npm, pnpm o yarn
+
+Pasos (PowerShell en Windows):
+
+```powershell
+# 1) Instalar dependencias (usa uno)
+npm install
+# pnpm install
+# yarn install
+
+# 2) Ejecutar modo desarrollo
+# Si existe script: "dev" en package.json
+npm run dev
+# Alternativa directa si no hay script:
+npx next dev
+
+# 3) Build de producción
+npm run build
+# Alternativa:
+npx next build
+
+# 4) Ejecutar producción (necesita build previo)
+npm run start
+# Alternativa:
+npx next start
+```
+
+> Nota: Si aún no existe package.json, inicializa el proyecto con `npm init -y` y añade Next.js/React/TS según la guía oficial. Este repo ya incluye estructura típica de Next.js.
+
 ## Prompt Principal - Plataforma Web CRM
 
 **CONTEXTO:**
