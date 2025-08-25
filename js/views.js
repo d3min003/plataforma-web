@@ -1,10 +1,11 @@
-// Views: render functions return HTML strings and attach events after mount
-import { db, uid, setSession, getSession, clearSession } from './storage.js';
+// Views: HTML renderers + binders (clean)
+import { db, uid, setSession, clearSession } from './storage.js';
 
+// Dashboard
 export function DashboardView() {
   const properties = db.get('properties', []);
   const clients = db.get('clients', []);
-  const kpiInventario = {
+  const k = {
     disponible: properties.filter(p=>p.status==='disponible').length,
     negociacion: properties.filter(p=>p.status==='negociacion').length,
     reservado: properties.filter(p=>p.status==='reservado').length,
@@ -12,11 +13,11 @@ export function DashboardView() {
   };
   return `
   <section class="grid" style="grid-template-columns: repeat(4, 1fr)">
-    ${Object.entries(kpiInventario).map(([k,v])=>`
+    ${Object.entries(k).map(([name,val])=>`
       <div class="card kpi">
         <div>
-          <div class="small">${k.toUpperCase()}</div>
-          <div style="font-size:28px; font-weight:700">${v}</div>
+          <div class="small">${name.toUpperCase()}</div>
+          <div style="font-size:28px; font-weight:700">${val}</div>
         </div>
         <div class="badge">Inventario</div>
       </div>
@@ -31,10 +32,10 @@ export function DashboardView() {
       </div>
       <p class="small">Total de clientes registrados en el navegador.</p>
     </div>
-  </section>
-  `;
+  </section>`;
 }
 
+// Login
 export function LoginView(){
   return `
   <section class="card" style="max-width:460px; margin:48px auto">
@@ -53,7 +54,7 @@ export function LoginView(){
         <button class="btn" type="submit">Entrar</button>
         <button class="btn ghost" type="button" id="btnSkip">Omitir</button>
       </div>
-      <div class="small">Sugerencia: crea tu usuario en Configuración → Importar o deja vacío y usa Omitir.</div>
+      <div class="small">Sugerencia: importa usuarios en Configuración o usa Omitir para entrar como invitado.</div>
     </form>
   </section>`;
 }
@@ -70,16 +71,13 @@ export function bindLoginEvents(root){
     const data = Object.fromEntries(new FormData(form));
     const users = db.get('users', []);
     const found = users.find(u => (u.email===data.user || u.name===data.user));
-    if (!found) {
-      alert('Usuario no encontrado. Ve a Configuración → Importar para cargar usuarios.');
-      return;
-    }
-    // Nota: sin backend no hay verificación real de contraseña
+    if (!found) { alert('Usuario no encontrado. Importa usuarios en Configuración.'); return; }
     setSession({ user: found, at: Date.now() });
     location.hash = '#/dashboard';
   });
 }
 
+// Clientes
 export function ClientesView() {
   const clients = db.get('clients', []);
   return `
@@ -150,8 +148,7 @@ export function ClientesView() {
         `).join('')}
       </tbody>
     </table>
-  </section>
-  `;
+  </section>`;
 }
 
 export function bindClientesEvents(root) {
@@ -193,9 +190,7 @@ export function bindClientesEvents(root) {
       location.hash = '#/clientes';
     });
   }
-  btnCancel?.addEventListener('click', ()=>{
-    location.hash = '#/clientes';
-  });
+  btnCancel?.addEventListener('click', ()=>{ location.hash = '#/clientes'; });
   root.querySelectorAll('[data-del]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       if (confirm('¿Eliminar cliente?')) {
@@ -226,38 +221,123 @@ export function bindClientesEvents(root) {
   });
 }
 
+// Propiedades (expanded form)
 export function PropiedadesView() {
   const props = db.get('properties', []);
   return `
   <section class="card">
     <h2>Propiedades</h2>
     <form id="formProp" class="grid" style="grid-template-columns: repeat(6, 1fr); align-items:end; gap:12px">
-  <input type="hidden" name="id" />
-      <div>
-        <label>Título</label>
+      <input type="hidden" name="id" />
+
+      <div style="grid-column: span 6"><h3>Información General</h3></div>
+      <div style="grid-column: span 3">
+        <label>Título / Nombre de la propiedad</label>
         <input class="input" name="title" required />
       </div>
-      <div>
-        <label>Precio</label>
-        <input class="input" name="price" type="number" required />
-      </div>
-      <div>
-        <label>Zona</label>
-        <input class="input" name="zone" />
-      </div>
-      <div>
-        <label>Dirección</label>
-        <input class="input" name="address" />
-      </div>
-      <div>
-        <label>Tipo</label>
+      <div style="grid-column: span 2">
+        <label>Tipo de propiedad</label>
         <select class="input" name="type">
-          <option>Departamento</option>
           <option>Casa</option>
-          <option>PH</option>
+          <option>Departamento</option>
           <option>Terreno</option>
+          <option>Oficina</option>
+          <option>Local</option>
         </select>
       </div>
+      <div style="grid-column: span 6">
+        <label>Descripción</label>
+        <textarea class="input" name="description" rows="2" placeholder="Descripción breve..."></textarea>
+      </div>
+
+      <div style="grid-column: span 6"><h3>Ubicación</h3></div>
+      <div style="grid-column: span 3">
+        <label>Dirección completa</label>
+        <input class="input" name="address" />
+      </div>
+      <div style="grid-column: span 3">
+        <label>Colonia / Barrio</label>
+        <input class="input" name="neighborhood" />
+      </div>
+      <div>
+        <label>Ciudad</label>
+        <input class="input" name="city" />
+      </div>
+      <div>
+        <label>Estado / Provincia</label>
+        <input class="input" name="state" />
+      </div>
+      <div>
+        <label>Código postal</label>
+        <input class="input" name="postalCode" />
+      </div>
+
+      <div style="grid-column: span 6"><h3>Características</h3></div>
+      <div>
+        <label>Número de habitaciones</label>
+        <input class="input" name="bedrooms" type="number" min="0" />
+      </div>
+      <div>
+        <label>Número de baños</label>
+        <input class="input" name="baths" type="number" min="0" />
+      </div>
+      <div>
+        <label>Metros cuadrados construidos</label>
+        <input class="input" name="builtM2" type="number" min="0" />
+      </div>
+      <div>
+        <label>Metros cuadrados de terreno</label>
+        <input class="input" name="landM2" type="number" min="0" />
+      </div>
+      <div>
+        <label>Estacionamientos</label>
+        <input class="input" name="parking" type="number" min="0" />
+      </div>
+      <div>
+        <label>Edad de la propiedad (años)</label>
+        <input class="input" name="ageYears" type="number" min="0" />
+      </div>
+
+      <div style="grid-column: span 6"><h3>Información financiera</h3></div>
+      <div>
+        <label>Precio de venta / renta</label>
+        <input class="input" name="price" type="number" min="0" />
+      </div>
+      <div>
+        <label>Moneda</label>
+        <select class="input" name="currency">
+          <option>MXN</option>
+          <option>USD</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div>
+        <label>Tipo de operación</label>
+        <select class="input" name="operation">
+          <option>Venta</option>
+          <option>Renta</option>
+        </select>
+      </div>
+
+      <div style="grid-column: span 6"><h3>Documentación y contacto</h3></div>
+      <div>
+        <label>Estado legal / situación</label>
+        <select class="input" name="legalStatus">
+          <option>Libre</option>
+          <option>Hipotecada</option>
+          <option>En trámite</option>
+        </select>
+      </div>
+      <div>
+        <label>Nombre del propietario / contacto</label>
+        <input class="input" name="ownerName" />
+      </div>
+      <div style="grid-column: span 2">
+        <label>Teléfono / correo del contacto</label>
+        <input class="input" name="contactInfo" />
+      </div>
+
+      <div style="grid-column: span 6"><h3>Estado del pipeline</h3></div>
       <div>
         <label>Estado</label>
         <select class="input" name="status">
@@ -267,21 +347,10 @@ export function PropiedadesView() {
           <option value="vendido">vendido</option>
         </select>
       </div>
-      <div>
-        <label>Dormitorios</label>
-        <input class="input" name="bedrooms" type="number" min="0" />
-      </div>
-      <div>
-        <label>Baños</label>
-        <input class="input" name="baths" type="number" min="0" />
-      </div>
-      <div>
-        <label>m²</label>
-        <input class="input" name="m2" type="number" min="0" />
-      </div>
-      <div>
-  <button class="btn" type="submit" id="btnPropSubmit">Agregar</button>
-  <button class="btn ghost" type="button" id="btnPropCancel" style="display:none">Cancelar</button>
+
+      <div style="grid-column: span 6">
+        <button class="btn" type="submit" id="btnPropSubmit">Guardar propiedad</button>
+        <button class="btn ghost" type="button" id="btnPropCancel">Cancelar / Limpiar formulario</button>
       </div>
     </form>
   </section>
@@ -289,17 +358,17 @@ export function PropiedadesView() {
     <table class="table">
       <thead>
         <tr>
-          <th>Título</th><th>Precio</th><th>Zona</th><th>Tipo</th><th>Estado</th><th></th>
+          <th>Título</th><th>Precio</th><th>Ubicación</th><th>Tipo</th><th>Estado</th><th></th>
         </tr>
       </thead>
       <tbody>
         ${props.map(p => `
           <tr>
-            <td>${p.title}</td>
-            <td>$ ${p.price.toLocaleString()}</td>
-            <td>${p.zone || ''}</td>
+            <td>${p.title || ''}</td>
+            <td>$ ${Number(p.price||0).toLocaleString()} ${p.currency || ''}</td>
+            <td>${p.neighborhood || p.city || p.zone || ''}</td>
             <td>${p.type || ''}</td>
-            <td><span class="badge">${p.status}</span></td>
+            <td><span class="badge">${p.status || 'disponible'}</span></td>
             <td style="text-align:right">
               <button class="btn secondary" data-edit-prop="${p.id}">Editar</button>
               <button class="btn secondary" data-move="${p.id}">Mover</button>
@@ -309,14 +378,19 @@ export function PropiedadesView() {
         `).join('')}
       </tbody>
     </table>
-  </section>
-  `;
+  </section>`;
 }
 
 export function bindPropiedadesEvents(root) {
   const form = root.querySelector('#formProp');
   const btnSubmit = root.querySelector('#btnPropSubmit');
   const btnCancel = root.querySelector('#btnPropCancel');
+  function clearPropForm(){
+    if (!form) return;
+    form.reset();
+    form.id.value = '';
+    btnSubmit.textContent = 'Guardar propiedad';
+  }
   if (form) {
     form.addEventListener('submit', (e)=>{
       e.preventDefault();
@@ -325,27 +399,53 @@ export function bindPropiedadesEvents(root) {
       if (isEdit) {
         db.update('properties', data.id, {
           title: data.title?.trim(),
+          description: data.description?.trim(),
           price: Number(data.price||0),
-          zone: data.zone?.trim(),
+          currency: data.currency,
+          operation: data.operation,
           address: data.address?.trim(),
+          neighborhood: data.neighborhood?.trim(),
+          city: data.city?.trim(),
+          state: data.state?.trim(),
+          postalCode: data.postalCode?.trim(),
+          zone: (data.neighborhood?.trim() || data.city?.trim() || ''),
           type: data.type,
           status: data.status,
           bedrooms: Number(data.bedrooms||0),
           baths: Number(data.baths||0),
-          m2: Number(data.m2||0),
+          builtM2: Number(data.builtM2||0),
+          landM2: Number(data.landM2||0),
+          parking: Number(data.parking||0),
+          ageYears: Number(data.ageYears||0),
+          legalStatus: data.legalStatus,
+          ownerName: data.ownerName?.trim(),
+          contactInfo: data.contactInfo?.trim(),
         });
       } else {
         const item = {
           id: uid('prop'),
           title: data.title?.trim(),
+          description: data.description?.trim(),
           price: Number(data.price||0),
-          zone: data.zone?.trim(),
+          currency: data.currency,
+          operation: data.operation,
           address: data.address?.trim(),
+          neighborhood: data.neighborhood?.trim(),
+          city: data.city?.trim(),
+          state: data.state?.trim(),
+          postalCode: data.postalCode?.trim(),
+          zone: (data.neighborhood?.trim() || data.city?.trim() || ''),
           type: data.type,
           status: data.status,
           bedrooms: Number(data.bedrooms||0),
           baths: Number(data.baths||0),
-          m2: Number(data.m2||0),
+          builtM2: Number(data.builtM2||0),
+          landM2: Number(data.landM2||0),
+          parking: Number(data.parking||0),
+          ageYears: Number(data.ageYears||0),
+          legalStatus: data.legalStatus,
+          ownerName: data.ownerName?.trim(),
+          contactInfo: data.contactInfo?.trim(),
           createdAt: new Date().toISOString(),
         };
         const arr = db.get('properties', []);
@@ -355,7 +455,7 @@ export function bindPropiedadesEvents(root) {
       location.hash = '#/propiedades';
     });
   }
-  btnCancel?.addEventListener('click', ()=>{ location.hash = '#/propiedades'; });
+  btnCancel?.addEventListener('click', ()=>{ clearPropForm(); });
   root.querySelectorAll('[data-del]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       if (confirm('¿Eliminar propiedad?')) {
@@ -385,21 +485,34 @@ export function bindPropiedadesEvents(root) {
       if (!p || !form) return;
       form.id.value = p.id;
       form.title.value = p.title || '';
+      form.description.value = p.description || '';
       form.price.value = p.price || '';
-      form.zone.value = p.zone || '';
+      form.currency.value = p.currency || 'MXN';
+      form.operation.value = p.operation || 'Venta';
       form.address.value = p.address || '';
-      form.type.value = p.type || 'Departamento';
+      form.neighborhood.value = p.neighborhood || '';
+      form.city.value = p.city || '';
+      form.state.value = p.state || '';
+      form.postalCode.value = p.postalCode || '';
+      form.type.value = p.type || 'Casa';
       form.status.value = p.status || 'disponible';
       form.bedrooms.value = p.bedrooms || '';
       form.baths.value = p.baths || '';
-      form.m2.value = p.m2 || '';
+      form.builtM2.value = p.builtM2 || '';
+      form.landM2.value = p.landM2 || '';
+      form.parking.value = p.parking || '';
+      form.ageYears.value = p.ageYears || '';
+      form.legalStatus.value = p.legalStatus || 'Libre';
+      form.ownerName.value = p.ownerName || '';
+      form.contactInfo.value = p.contactInfo || '';
       btnSubmit.textContent = 'Guardar cambios';
-      btnCancel.style.display = 'inline-block';
+      const bc = btnCancel; if (bc) bc.style.display = 'inline-block';
       form.scrollIntoView({behavior:'smooth', block:'start'});
     });
   });
 }
 
+// Pipeline
 export function PipelineView() {
   const props = db.get('properties', []);
   const by = (status) => props.filter(p=>p.status===status);
@@ -410,7 +523,7 @@ export function PipelineView() {
         ${by(key).map(p=>`
           <div class="card-item" draggable="true" data-id="${p.id}">
             <div style="font-weight:600">${p.title}</div>
-            <div class="small">$ ${p.price.toLocaleString()} · ${p.zone}</div>
+            <div class="small">$ ${Number(p.price||0).toLocaleString()} · ${p.neighborhood || p.city || ''}</div>
           </div>
         `).join('')}
       </div>
@@ -431,14 +544,10 @@ export function bindPipelineEvents(root){
       dragId = el.getAttribute('data-id');
       el.classList.add('dragging');
     });
-    el.addEventListener('dragend', ()=>{
-      el.classList.remove('dragging');
-    });
+    el.addEventListener('dragend', ()=>{ el.classList.remove('dragging'); });
   });
   root.querySelectorAll('.dropzone').forEach(zone=>{
-    zone.addEventListener('dragover', (e)=>{
-      e.preventDefault();
-    });
+    zone.addEventListener('dragover', (e)=>{ e.preventDefault(); });
     zone.addEventListener('drop', ()=>{
       if (!dragId) return;
       const status = zone.getAttribute('data-status');
@@ -453,6 +562,7 @@ export function bindPipelineEvents(root){
   });
 }
 
+// Asesores
 export function AsesoresView(){
   const users = db.get('users', []).filter(u=>u.role!=='admin');
   return `
@@ -467,6 +577,7 @@ export function AsesoresView(){
   </section>`;
 }
 
+// Configuración
 export function ConfigView(){
   return `
   <section class="card">
@@ -477,7 +588,7 @@ export function ConfigView(){
       <label class="btn ghost" for="fileImport">Importar JSON</label>
       <input id="fileImport" type="file" accept="application/json" style="display:none" />
       <button class="btn danger" id="btnReset">Borrar todo</button>
-  <button class="btn secondary" id="btnLogout">Cerrar sesión</button>
+      <button class="btn secondary" id="btnLogout">Cerrar sesión</button>
     </div>
     <pre id="exportOut" class="card" style="margin-top:12px; white-space:pre-wrap"></pre>
   </section>`;
@@ -516,9 +627,7 @@ export function bindConfigEvents(root){
       if (Array.isArray(data.properties)) localStorage.setItem('crmInmo_v1:properties', JSON.stringify(data.properties));
       alert('Datos importados');
       location.reload();
-    }catch(e){
-      alert('JSON inválido');
-    }
+    }catch(e){ alert('JSON inválido'); }
   });
   btnReset?.addEventListener('click', ()=>{
     if (confirm('Esto eliminará todos los datos locales. ¿Continuar?')){
@@ -526,8 +635,5 @@ export function bindConfigEvents(root){
       location.reload();
     }
   });
-  btnLogout?.addEventListener('click', ()=>{
-    clearSession();
-    location.hash = '#/login';
-  });
+  btnLogout?.addEventListener('click', ()=>{ clearSession(); location.hash = '#/login'; });
 }
