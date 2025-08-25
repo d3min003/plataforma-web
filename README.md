@@ -8,7 +8,7 @@
 
 ## Producción (Vercel)
 - URL: https://plataforma-web-gules.vercel.app/
-- Estado actual: 404 NOT_FOUND (según verificación automática).
+- Estado actual: pendiente de revalidación tras último deploy.
 
 Checklist rápido en Vercel para resolver 404 en Next.js (Pages Router):
 - Root Directory: carpeta raíz del repo (no un subdirectorio)
@@ -47,19 +47,14 @@ Plataforma web CRM para el ecosistema inmobiliario con enfoque en rendimiento, m
 - Escalabilidad horizontal, monitoreo end-to-end y CI/CD con Vercel.
 
 ## Estado del proyecto
-- Código fuente: aún no inicializado en esta rama (sólo `.gitignore` y `README.md`).
-- Despliegue Vercel: 404 NOT_FOUND (ver sección Producción para checklist).
+- Código fuente: base Next.js + TypeScript con MUI integrada (Leads, Propiedades, Dashboard y 404 personalizada).
+- Despliegue Vercel: pendiente revalidación; ver sección Producción para checklist.
 
 ## Siguientes pasos sugeridos
-1) Inicializar base Next.js + TypeScript.
-   - create-next-app (App Router o Pages Router).
-   - Scripts estándar: `dev`, `build`, `start`.
-2) Configurar Deploy en Vercel.
-   - Framework Preset: Next.js, Root Directory: raíz del repo.
-   - Revisar logs de build tras primer push.
-3) Preparar API mock (pages/api o route handlers) y páginas básicas.
-4) Añadir tema de UI, layout y sistema de diseño.
-5) Conectar con Base Centralizada (ambiente de staging) y RTK Query.
+1) Añadir Drawer responsive y páginas de autenticación.
+2) Conectar APIs reales (Base Centralizada) y estados con RTK Query.
+3) Incorporar tests (unit e integración) y pipeline CI.
+4) Agregar Dashboard con charts (Recharts/Victory) y KPIs reales.
 
 ## Cómo ejecutar (local)
 Requisitos:
