@@ -575,3 +575,38 @@ Copia `.env.example` a `.env.local` y completa las credenciales (no las publique
 - API health: http://localhost:3000/api/health
 - API leads: GET/POST http://localhost:3000/api/leads
 - API propiedades: GET/POST http://localhost:3000/api/properties
+
+## Despliegue en Vercel (guía paso a paso)
+1) Conectar el repositorio
+   - En Vercel, Import Project → From Git → selecciona `d3min003/plataforma-web`.
+2) Configuración básica
+   - Production Branch: `master` (Project → Settings → Git)
+   - Framework Preset: `Next.js`
+   - Root Directory: `/` (raíz del repo)
+   - Install Command: `npm install` (o `npm ci` si usas lockfile)
+   - Build Command: `npm run build`
+   - Output Directory: `.next`
+3) Variables de entorno (opcional en esta base)
+   - Usa `.env.example` como referencia; define en Project → Settings → Environment Variables.
+4) Deploy
+   - Click en Deploy. Al finalizar, verifica la URL pública.
+
+### Troubleshooting 404 (NOT_FOUND) en Next.js
+- Rama incorrecta
+  - Asegura que Production Branch sea `master` o cambia a `main` en Git y actualiza Vercel.
+- Root Directory erróneo
+  - Debe ser la raíz del repo; evita subdirectorios.
+- Falta de páginas
+  - Revisa que exista `src/pages/index.tsx` (o `pages/index.tsx`). Esta base usa `src/pages`.
+- Build/Output
+  - Build: `npm run build`; Output: `.next`. No uses `out/` salvo `next export`.
+- Logs de build
+  - En el deployment, abre “Build Logs” y busca errores (dependencias, versiones, TS, etc.).
+- Cache de Vercel
+  - Trigger: “Redeploy” → “Clear Build Cache”.
+- Versión de Node
+  - Por defecto Vercel usa Node 18. Si necesitas fijarla, crea `package.json` engines o `vercel.json`.
+
+### Forzar redeploy
+- Vercel Dashboard → Project → Deployments → botón “Redeploy” → marca “Clear Build Cache”.
+- O realiza un commit en `master` (cambio mínimo en README) para disparar un nuevo deploy.
