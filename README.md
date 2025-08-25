@@ -567,3 +567,11 @@ Copia `.env.example` a `.env.local` y completa las credenciales (no las publique
 - Estilo: ESLint + Prettier; TypeScript estricto.
 - Testing: Jest + Testing Library; E2E con Cypress/Playwright.
 - CI/CD: GitHub Actions + Vercel (preview por PR, producción en main/master).
+
+## Rutas de prueba (local)
+- Página principal: http://localhost:3000/
+- Leads: http://localhost:3000/leads
+- Propiedades: http://localhost:3000/properties
+- API health: http://localhost:3000/api/health
+- API leads: GET/POST http://localhost:3000/api/leads
+- API propiedades: GET/POST http://localhost:3000/api/properties
