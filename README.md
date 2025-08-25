@@ -32,13 +32,14 @@ Plataforma CRM para gestión inmobiliaria sin backend. Todos los datos se almace
 ```
 .
 ├─ index.html
-├─ /css
-│  └─ styles.css
-├─ /js
-│  ├─ app.js        # arranque y rutas
-│  ├─ router.js     # enrutador por hash
-│  ├─ storage.js    # wrapper de localStorage + seed
-│  └─ views.js      # vistas y bindings
+├─ /assets
+│  ├─ /css
+│  │  └─ styles.css
+│  └─ /js
+│     ├─ app.js        # arranque y rutas
+│     ├─ router.js     # enrutador por hash
+│     ├─ storage.js    # wrapper de localStorage + seed
+│     └─ views.js      # vistas y bindings
 ```
 
 ## 🗺️ Roadmap (MVP)
