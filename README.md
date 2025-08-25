@@ -14,19 +14,12 @@ Plataforma CRM para gestión inmobiliaria sin backend. Todos los datos se almace
 - Configuración: exportar/importar JSON y reset local.
 
 ## 🛠️ Tecnologías
-- Frontend: HTML, CSS, JavaScript (vanilla, SPA con hash routing)
-- Persistencia: localStorage (namespace crmInmo_v1)
+- Frontend: HTML, CSS, JavaScript
 - Hosting: Vercel
 
-## ▶️ Ejecutar localmente (Windows PowerShell)
-Opción A (rápida): abrir `index.html` con el navegador.
-
-Opción B (servidor estático, requiere Node.js):
-
-```powershell
-npx http-server . -p 8080
-# luego abre http://localhost:8080
-```
+## ▶️ Uso (sin localhost)
+- Producción: usa la URL de Vercel indicada arriba.
+- Sin servidor local: abre `index.html` directamente en tu navegador si necesitas probar offline.
 
 ## 📦 Estructura
 ```
@@ -49,12 +42,7 @@ npx http-server . -p 8080
 - [x] Exportar/Importar JSON
 - [ ] Filtros avanzados y búsqueda
 - [ ] Métricas básicas (dashboard)
-- [ ] Galería de imágenes por propiedad
 - [ ] PWA (offline + installable)
 
-## ⚠️ Notas
-- Los datos se guardan en tu navegador. Si borras el storage, se pierde la info.
-- Usa Configuración → Exportar para generar un backup en JSON.
-
-## 📬 Contacto
-- Autor: d3min003
+# Idiomas disponibles
+- Español

@@ -1,5 +1,5 @@
 // Views: render functions return HTML strings and attach events after mount
-import { db, uid } from './storage.js';
+import { db, uid, setSession, getSession, clearSession } from './storage.js';
 
 export function DashboardView() {
   const properties = db.get('properties', []);
@@ -33,6 +33,51 @@ export function DashboardView() {
     </div>
   </section>
   `;
+}
+
+export function LoginView(){
+  return `
+  <section class="card" style="max-width:460px; margin:48px auto">
+    <h2>Iniciar sesión</h2>
+    <p class="small">Demo sin backend: se valida en el cliente.</p>
+    <form id="formLogin" class="grid" style="grid-template-columns: 1fr; gap:12px">
+      <div>
+        <label>Usuario o Email</label>
+        <input class="input" name="user" required />
+      </div>
+      <div>
+        <label>Contraseña</label>
+        <input class="input" name="pass" type="password" required />
+      </div>
+      <div class="row">
+        <button class="btn" type="submit">Entrar</button>
+        <button class="btn ghost" type="button" id="btnSkip">Omitir</button>
+      </div>
+      <div class="small">Sugerencia: crea tu usuario en Configuración → Importar o deja vacío y usa Omitir.</div>
+    </form>
+  </section>`;
+}
+
+export function bindLoginEvents(root){
+  const form = root.querySelector('#formLogin');
+  const btnSkip = root.querySelector('#btnSkip');
+  btnSkip?.addEventListener('click', ()=>{
+    setSession({ user: { id:'guest', name:'Invitado', role:'asesor' }, at: Date.now() });
+    location.hash = '#/dashboard';
+  });
+  form?.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    const users = db.get('users', []);
+    const found = users.find(u => (u.email===data.user || u.name===data.user));
+    if (!found) {
+      alert('Usuario no encontrado. Ve a Configuración → Importar para cargar usuarios.');
+      return;
+    }
+    // Nota: sin backend no hay verificación real de contraseña
+    setSession({ user: found, at: Date.now() });
+    location.hash = '#/dashboard';
+  });
 }
 
 export function ClientesView() {
@@ -432,6 +477,7 @@ export function ConfigView(){
       <label class="btn ghost" for="fileImport">Importar JSON</label>
       <input id="fileImport" type="file" accept="application/json" style="display:none" />
       <button class="btn danger" id="btnReset">Borrar todo</button>
+  <button class="btn secondary" id="btnLogout">Cerrar sesión</button>
     </div>
     <pre id="exportOut" class="card" style="margin-top:12px; white-space:pre-wrap"></pre>
   </section>`;
@@ -442,6 +488,7 @@ export function bindConfigEvents(root){
   const btnExport = root.querySelector('#btnExport');
   const file = root.querySelector('#fileImport');
   const btnReset = root.querySelector('#btnReset');
+  const btnLogout = root.querySelector('#btnLogout');
   btnExport?.addEventListener('click', ()=>{
     const dump = {
       users: db.get('users', []),
@@ -478,5 +525,9 @@ export function bindConfigEvents(root){
       Object.keys(localStorage).forEach(k=>{ if(k.startsWith('crmInmo_v1:')) localStorage.removeItem(k); });
       location.reload();
     }
+  });
+  btnLogout?.addEventListener('click', ()=>{
+    clearSession();
+    location.hash = '#/login';
   });
 }

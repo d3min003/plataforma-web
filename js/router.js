@@ -9,7 +9,7 @@ export function startRouter(mount) {
   function go(){
     const hash = location.hash || '#/dashboard';
     const path = hash.split('?')[0];
-    const r = routes[path] || routes['#/dashboard'];
+  const r = routes[path] || routes['#/dashboard'];
     if (!r) return;
     mount.innerHTML = r.render();
     r.bind?.(mount);
