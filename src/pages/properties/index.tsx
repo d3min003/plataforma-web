@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import Layout from '@/components/Layout';
+import { Box, Typography, TextField, Button, CircularProgress, List, ListItem, ListItemText, Paper, InputAdornment } from '@mui/material';
 
 type Property = { id: string; title: string; price: number; status: 'Available' | 'Sold' };
 
@@ -41,22 +41,40 @@ export default function PropertiesPage() {
 
   return (
     <Layout>
-      <h1>Propiedades</h1>
-      <p>
-        <Link href="/">Inicio</Link>
-      </p>
-      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 8, maxWidth: 360 }}>
-        <input placeholder="Título" value={title} onChange={e => setTitle(e.target.value)} required />
-        <input placeholder="Precio" value={price} onChange={e => setPrice(Number(e.target.value))} type="number" min={0} required />
-        <button disabled={loading}>{loading ? 'Guardando…' : 'Agregar propiedad'}</button>
-      </form>
-      <ul>
-        {properties.map(p => (
-          <li key={p.id}>
-            {p.title} — ${'{'}p.price{'}'} — {p.status}
-          </li>
-        ))}
-      </ul>
+      <Typography variant="h4" sx={{ mb: 2 }}>Propiedades</Typography>
+      <Paper sx={{ p: 2, mb: 3 }} component="form" onSubmit={onSubmit}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr auto' }, gap: 2, alignItems: 'center' }}>
+          <TextField label="Título" value={title} onChange={e => setTitle(e.target.value)} required fullWidth />
+          <TextField
+            label="Precio"
+            value={price}
+            onChange={e => setPrice(Number(e.target.value))}
+            type="number"
+            inputProps={{ min: 0 }}
+            InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }}
+            required
+            fullWidth
+          />
+          <Button type="submit" variant="contained" disabled={loading} sx={{ minWidth: 200 }}>
+            {loading ? <CircularProgress size={20} /> : 'Agregar propiedad'}
+          </Button>
+        </Box>
+      </Paper>
+
+      <Paper>
+        <List>
+          {properties.map(p => (
+            <ListItem key={p.id} divider>
+              <ListItemText primary={p.title} secondary={`$${p.price.toLocaleString()} — ${p.status}`} />
+            </ListItem>
+          ))}
+          {properties.length === 0 && (
+            <ListItem>
+              <ListItemText primary="Sin propiedades aún" />
+            </ListItem>
+          )}
+        </List>
+      </Paper>
     </Layout>
   );
 }

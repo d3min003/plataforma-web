@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import Layout from '@/components/Layout';
+import { Box, Typography, TextField, Button, CircularProgress, List, ListItem, ListItemText, Paper } from '@mui/material';
 
 type Lead = { id: string; name: string; email: string };
 
@@ -41,22 +41,31 @@ export default function LeadsPage() {
 
   return (
     <Layout>
-      <h1>Leads</h1>
-      <p>
-        <Link href="/">Inicio</Link>
-      </p>
-      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 8, maxWidth: 360 }}>
-        <input placeholder="Nombre" value={name} onChange={e => setName(e.target.value)} required />
-        <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} type="email" required />
-        <button disabled={loading}>{loading ? 'Guardando…' : 'Agregar lead'}</button>
-      </form>
-      <ul>
-        {leads.map(l => (
-          <li key={l.id}>
-            {l.name} — {l.email}
-          </li>
-        ))}
-      </ul>
+      <Typography variant="h4" sx={{ mb: 2 }}>Leads</Typography>
+      <Paper sx={{ p: 2, mb: 3 }} component="form" onSubmit={onSubmit}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr auto' }, gap: 2, alignItems: 'center' }}>
+          <TextField label="Nombre" value={name} onChange={e => setName(e.target.value)} required fullWidth />
+          <TextField label="Email" value={email} onChange={e => setEmail(e.target.value)} type="email" required fullWidth />
+          <Button type="submit" variant="contained" disabled={loading} sx={{ minWidth: 160 }}>
+            {loading ? <CircularProgress size={20} /> : 'Agregar lead'}
+          </Button>
+        </Box>
+      </Paper>
+
+      <Paper>
+        <List>
+          {leads.map(l => (
+            <ListItem key={l.id} divider>
+              <ListItemText primary={l.name} secondary={l.email} />
+            </ListItem>
+          ))}
+          {leads.length === 0 && (
+            <ListItem>
+              <ListItemText primary="Sin leads aún" />
+            </ListItem>
+          )}
+        </List>
+      </Paper>
     </Layout>
   );
 }
