@@ -1,57 +1,60 @@
-# 🌐 CRM Web Inmobiliario  
+# 🌐 CRM Web Inmobiliario (Frontend-only)
 
-## 🎯 Objetivo
-Plataforma CRM para gestión inmobiliaria que centraliza operaciones y optimiza el ciclo comercial.
+Plataforma CRM para gestión inmobiliaria sin backend. Todos los datos se almacenan en el navegador (localStorage). Ideal para demo, prototipos o uso personal sin servidor.
+
+## 🚀 Demo
+- Producción (Vercel): https://plataforma-web-gules.vercel.app/
+- Código fuente (GitHub): https://github.com/d3min003/plataforma-web
 
 ## 🔑 Funciones principales
-- **Clientes**
-	- Registro y segmentación (presupuesto, zona, tipo de propiedad).
-- **Propiedades**
-	- Alta y gestión de inmuebles (precio, estado, ubicación).
-	- Control de pipeline: disponible → negociación → reservado → vendido.
-- **Asesores**
-	- Gestión de cartera asignada (clientes + propiedades).
-	- Métricas de desempeño individual.
+- Clientes: registro, edición, segmentación (presupuesto, zona, tipo).
+- Propiedades: alta/edición, estado (disponible/negociación/reservado/vendido).
+- Pipeline: tablero Kanban con drag & drop para cambiar estado.
+- Asesores: listado básico desde datos seed.
+- Configuración: exportar/importar JSON y reset local.
 
 ## 🛠️ Tecnologías
-- **Frontend:** 
+- Frontend: HTML, CSS, JavaScript (vanilla, SPA con hash routing)
+- Persistencia: localStorage (namespace crmInmo_v1)
+- Hosting: Vercel
 
-Monorepo con frontend y backend separados.
+## ▶️ Ejecutar localmente (Windows PowerShell)
+Opción A (rápida): abrir `index.html` con el navegador.
 
-## Estructura
-- frontend/ (Next.js + MUI)
-- backend/ (Express + TypeScript)
+Opción B (servidor estático, requiere Node.js):
 
-## Cómo ejecutar
-- Backend:
 ```powershell
-cd backend
-npm install
-npm run dev
-```
-- Frontend:
-```powershell
-cd ../frontend
-npm install
-$env:NEXT_PUBLIC_API_URL = "http://localhost:4000"; npm run dev
+npx http-server . -p 8080
+# luego abre http://localhost:8080
 ```
 
-## Endpoints backend
-- GET http://localhost:4000/health
-- GET/POST http://localhost:4000/leads
-- GET/POST http://localhost:4000/properties
+## 📦 Estructura
+```
+.
+├─ index.html
+├─ /css
+│  └─ styles.css
+├─ /js
+│  ├─ app.js        # arranque y rutas
+│  ├─ router.js     # enrutador por hash
+│  ├─ storage.js    # wrapper de localStorage + seed
+│  └─ views.js      # vistas y bindings
+```
 
-## Notas
-- Variables ejemplo en `frontend/.env.example` y `backend/.env.example`.
-- Ajusta CORS si consumes desde otro dominio.
+## 🗺️ Roadmap (MVP)
+- [x] CRUD clientes (localStorage)
+- [x] CRUD propiedades + estados
+- [x] Tablero Kanban con drag & drop
+- [x] Listado de asesores (seed)
+- [x] Exportar/Importar JSON
+- [ ] Filtros avanzados y búsqueda
+- [ ] Métricas básicas (dashboard)
+- [ ] Galería de imágenes por propiedad
+- [ ] PWA (offline + installable)
 
-## CI/CD y Vercel
-- Proyecto de Vercel del frontend: `prj_M3pyUu8FksdEOIT7uXZuawSZpeYJ`
-- Despliegue automático con GitHub Actions: `.github/workflows/vercel-frontend.yml`.
-- Configura en GitHub/Repo/Settings/Secrets and variables/Actions:
-	- `VERCEL_TOKEN`: token personal de Vercel.
-	- `VERCEL_ORG_ID`: ID de la organización/equipo.
-	- `VERCEL_PROJECT_ID`: `prj_M3pyUu8FksdEOIT7uXZuawSZpeYJ`.
-- Variables de entorno del frontend en Vercel:
-	- `NEXT_PUBLIC_API_URL`: URL del backend (por ejemplo, producción: API pública; preview: staging).
-	- Puedes gestionar las envs con `vercel env` o `vercel pull`.
+## ⚠️ Notas
+- Los datos se guardan en tu navegador. Si borras el storage, se pierde la info.
+- Usa Configuración → Exportar para generar un backup en JSON.
+
+## 📬 Contacto
+- Autor: d3min003
