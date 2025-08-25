@@ -14,10 +14,7 @@ Plataforma CRM para gestión inmobiliaria que centraliza operaciones y optimiza 
 	- Métricas de desempeño individual.
 
 ## 🛠️ Tecnologías
-- **Frontend:** React + Next.js + TypeScript + Material UI (deploy en Vercel)
-- **Backend / API:** FastAPI / Node.js (según despliegue)
-- **Base de datos:** PostgreSQL / SQLite (manejada externamente y conectada al API)
-- **Comunicación:** Frontend ↔ API ↔ Base de datos
+- **Frontend:** 
 
 Monorepo con frontend y backend separados.
 
