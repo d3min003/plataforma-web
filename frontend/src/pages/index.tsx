@@ -1,22 +1,32 @@
 import * as React from 'react';
 import Head from 'next/head';
-import { Container, Typography, List, ListItem, ListItemText, Link as MLink } from '@mui/material';
+import { Typography, List, ListItem, ListItemText, Link as MLink, Alert, Stack } from '@mui/material';
+import Layout from '@/components/Layout';
+import { getHealth } from '@/lib/api';
 
 export default function Home() {
+  const [health, setHealth] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    getHealth().then(h => setHealth(`${h.status} @ ${new Date(h.timestamp).toLocaleString()}`)).catch(() => setHealth(null));
+  }, []);
+
   return (
     <>
       <Head>
         <title>CRM Web Inmobiliario</title>
       </Head>
-      <Container sx={{ py: 6 }}>
-        <Typography variant="h4" gutterBottom>CRM Web Inmobiliario</Typography>
-        <Typography variant="body1" gutterBottom>
-          Frontend con Next.js + MUI. Backend separado.
-        </Typography>
-        <List>
-          <ListItem><ListItemText primary={<MLink href="/api/health">/api/health (desde backend)</MLink>} /></ListItem>
-        </List>
-      </Container>
+      <Layout>
+        <Stack spacing={2}>
+          <Typography variant="h4">CRM Web Inmobiliario</Typography>
+          {health && <Alert severity="success">API saludable: {health}</Alert>}
+          <List>
+            <ListItem>
+              <ListItemText primary={<MLink href="/api/health">/api/health (desde backend)</MLink>} />
+            </ListItem>
+          </List>
+        </Stack>
+      </Layout>
     </>
   );
 }
