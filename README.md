@@ -75,23 +75,16 @@ npm install
 # yarn install
 
 # 2) Ejecutar en modo desarrollo
-# Si existe script: "dev" en package.json
 npm run dev
-# Alternativa directa si no hay script:
-npx next dev
 
 # 3) Compilar para producción
 npm run build
-# Alternativa:
-npx next build
 
 # 4) Iniciar en producción (requiere build previo)
 npm run start
-# Alternativa:
-npx next start
 ```
 
-> Nota: Si no existe package.json, inicializa con `npm init -y` y añade Next.js/React/TS. Este repo ya tiene estructura típica de Next.js.
+> Nota: Este repositorio ya incluye `package.json` y scripts estándar (dev, build, start).
 
 ## Resumen del proyecto (CRM Web)
 
