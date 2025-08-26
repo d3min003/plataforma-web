@@ -1,6 +1,6 @@
-import { seedIfEmpty, getSession } from './core/storage.js';
+import { seedIfEmpty, getSession, clearSession } from './core/storage.js';
 import { register, startRouter } from './core/router.js';
-import { DashboardView, ClientesView, bindClientesEvents, PropiedadesView, bindPropiedadesEvents, PipelineView, bindPipelineEvents, AsesoresView, ConfigView, bindConfigEvents, LoginView, bindLoginEvents } from './features/index.js';
+import { DashboardView, bindDashboardEvents, ClientesView, bindClientesEvents, PropiedadesView, bindPropiedadesEvents, AsesoresView, bindAsesoresEvents, LoginView, bindLoginEvents } from './features/index.js';
 
 seedIfEmpty();
 
@@ -18,12 +18,20 @@ function updateNavVisibility(){
 }
 
 register('#/login', LoginView, (root)=>{ bindLoginEvents(root); updateNavVisibility(); });
-register('#/dashboard', DashboardView);
+register('#/dashboard', DashboardView, bindDashboardEvents);
 register('#/clientes', ClientesView, bindClientesEvents);
 register('#/propiedades', PropiedadesView, bindPropiedadesEvents);
-register('#/pipeline', PipelineView, bindPipelineEvents);
-register('#/asesores', AsesoresView);
-register('#/config', ConfigView, bindConfigEvents);
+register('#/asesores', AsesoresView, bindAsesoresEvents);
+
+// Logout link (handled globally)
+document.addEventListener('click', (e)=>{
+	const a = e.target.closest('a[href="#/logout"]');
+	if (a) {
+		e.preventDefault();
+		clearSession();
+		location.hash = '#/login';
+	}
+});
 
 startRouter(document.getElementById('app'));
 

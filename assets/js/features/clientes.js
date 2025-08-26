@@ -1,48 +1,132 @@
-import { db, uid } from '../core/storage.js';
+import { db } from '../core/storage.js';
+import { api } from '../core/api.js';
 
 export function ClientesView() {
-  const clients = db.get('clients', []);
+  const clients = api.clients.list();
   return `
   <section class="card">
     <h2>Clientes</h2>
     <form id="formCliente" class="grid" style="grid-template-columns: repeat(6, 1fr); align-items:end; gap:12px">
       <input type="hidden" name="id" />
-      <div>
-        <label>Nombre</label>
+
+      <div style="grid-column: span 6"><h3>Datos Generales</h3></div>
+      <div style="grid-column: span 3">
+        <label>Nombre completo</label>
         <input class="input" name="name" required />
       </div>
-      <div>
-        <label>Email</label>
+      <div style="grid-column: span 3">
+        <label>Correo electrónico</label>
         <input class="input" name="email" type="email" />
       </div>
+      <div style="grid-column: span 3">
+        <label>Teléfono móvil</label>
+        <input class="input" name="phoneMobile" />
+      </div>
+      <div style="grid-column: span 3">
+        <label>Teléfono alternativo</label>
+        <input class="input" name="phoneAlt" />
+      </div>
+
+      <div style="grid-column: span 6"><h3>Perfil del Cliente</h3></div>
       <div>
-        <label>Teléfono</label>
-        <input class="input" name="phone" />
+        <label>Tipo de cliente</label>
+        <select class="input" name="clientType">
+          <option>Comprador</option>
+          <option>Vendedor</option>
+          <option>Arrendador</option>
+          <option>Arrendatario</option>
+        </select>
       </div>
       <div>
-        <label>Presupuesto Min</label>
-        <input class="input" name="budgetMin" type="number" min="0" />
+        <label>Medio de contacto preferido</label>
+        <select class="input" name="contactPreferred">
+          <option>Teléfono</option>
+          <option>WhatsApp</option>
+          <option>Correo</option>
+          <option>Otro</option>
+        </select>
       </div>
       <div>
-        <label>Presupuesto Max</label>
-        <input class="input" name="budgetMax" type="number" min="0" />
+        <label>Fuente de contacto</label>
+        <select class="input" name="contactSource">
+          <option>Página web</option>
+          <option>Redes sociales</option>
+          <option>Referencia</option>
+          <option>Otro</option>
+        </select>
       </div>
+
+      <div style="grid-column: span 6"><h3>Requerimientos (Comprador/Arrendatario)</h3></div>
       <div>
-        <label>Zona</label>
-        <input class="input" name="zone" />
-      </div>
-      <div style="grid-column: span 2">
-        <label>Tipo</label>
-        <select class="input" name="type">
-          <option>Departamento</option>
+        <label>Tipo de propiedad buscada</label>
+        <select class="input" name="typeWanted">
           <option>Casa</option>
-          <option>PH</option>
+          <option>Departamento</option>
+          <option>Oficina</option>
+          <option>Local</option>
           <option>Terreno</option>
         </select>
       </div>
       <div>
-        <button class="btn" type="submit" id="btnClienteSubmit">Agregar</button>
-        <button class="btn ghost" type="button" id="btnClienteCancel" style="display:none">Cancelar</button>
+        <label>Zona de interés</label>
+        <input class="input" name="zone" />
+      </div>
+      <div>
+        <label>Rango de precio (mín)</label>
+        <input class="input" name="priceMin" type="number" min="0" />
+      </div>
+      <div>
+        <label>Rango de precio (máx)</label>
+        <input class="input" name="priceMax" type="number" min="0" />
+      </div>
+      <div style="grid-column: span 6">
+        <label>Características deseadas</label>
+        <input class="input" name="desiredFeatures" placeholder="Ej: 3 recámaras, 2 baños, patio..." />
+      </div>
+
+      <div style="grid-column: span 6"><h3>Requerimientos (Vendedor/Arrendador)</h3></div>
+      <div>
+        <label>Propiedad a ofrecer</label>
+        <select class="input" name="offerPropertyType">
+          <option>Casa</option>
+          <option>Departamento</option>
+          <option>Oficina</option>
+          <option>Local</option>
+          <option>Terreno</option>
+        </select>
+      </div>
+      <div style="grid-column: span 3">
+        <label>Dirección</label>
+        <input class="input" name="offerAddress" />
+      </div>
+      <div>
+        <label>Precio estimado</label>
+        <input class="input" name="offerPriceEstimate" type="number" min="0" />
+      </div>
+
+      <div style="grid-column: span 6"><h3>Seguimiento</h3></div>
+      <div>
+        <label>Asesor asignado</label>
+        <input class="input" name="advisorAssigned" />
+      </div>
+      <div>
+        <label>Estatus del cliente</label>
+        <select class="input" name="status">
+          <option>Nuevo</option>
+          <option>En contacto</option>
+          <option>En negociación</option>
+          <option>Cerrado</option>
+          <option>Perdido</option>
+        </select>
+      </div>
+      <div style="grid-column: span 6">
+        <label>Notas adicionales</label>
+        <textarea class="input" name="notes" rows="2" placeholder="Notas relevantes, expectativas, citas..."></textarea>
+      </div>
+
+      <div style="grid-column: span 6">
+        <button class="btn" type="submit" id="btnClienteSubmit">Guardar cliente</button>
+        <button class="btn ghost" type="button" id="btnClienteCancel" style="display:none">Cancelar / Limpiar formulario</button>
       </div>
     </form>
   </section>
@@ -50,18 +134,18 @@ export function ClientesView() {
     <table class="table">
       <thead>
         <tr>
-          <th>Nombre</th><th>Email</th><th>Teléfono</th><th>Presupuesto</th><th>Zona</th><th>Tipo</th><th></th>
+          <th>Nombre</th><th>Tipo cliente</th><th>Estatus</th><th>Contacto</th><th>Zona</th><th>Rango</th><th></th>
         </tr>
       </thead>
       <tbody>
         ${clients.map(c => `
           <tr>
-            <td>${c.name}</td>
-            <td>${c.email || ''}</td>
-            <td>${c.phone || ''}</td>
-            <td>${c.budgetMin || 0} - ${c.budgetMax || 0}</td>
+            <td>${c.name || ''}</td>
+            <td>${c.clientType || ''}</td>
+            <td>${c.status || 'Nuevo'}</td>
+            <td>${c.contactPreferred || ''}</td>
             <td>${c.zone || ''}</td>
-            <td>${c.type || ''}</td>
+            <td>${(c.priceMin ?? c.budgetMin ?? 0)} - ${(c.priceMax ?? c.budgetMax ?? 0)}</td>
             <td style="text-align:right">
               <button class="btn secondary" data-edit="${c.id}">Editar</button>
               <button class="btn danger" data-del="${c.id}">Borrar</button>
@@ -86,28 +170,46 @@ export function bindClientesEvents(root) {
         const updated = {
           name: data.name?.trim(),
           email: data.email?.trim(),
-          phone: data.phone?.trim(),
-          budgetMin: Number(data.budgetMin||0),
-          budgetMax: Number(data.budgetMax||0),
+          phoneMobile: data.phoneMobile?.trim(),
+          phoneAlt: data.phoneAlt?.trim(),
+          clientType: data.clientType,
+          contactPreferred: data.contactPreferred,
+          contactSource: data.contactSource,
+          typeWanted: data.typeWanted,
           zone: data.zone?.trim(),
-          type: data.type,
+          priceMin: Number(data.priceMin||0),
+          priceMax: Number(data.priceMax||0),
+          desiredFeatures: data.desiredFeatures?.trim(),
+          offerPropertyType: data.offerPropertyType,
+          offerAddress: data.offerAddress?.trim(),
+          offerPriceEstimate: Number(data.offerPriceEstimate||0),
+          advisorAssigned: data.advisorAssigned?.trim(),
+          status: data.status,
+          notes: data.notes?.trim(),
         };
-        db.update('clients', data.id, updated);
+        api.clients.update(data.id, updated);
       } else {
         const item = {
-          id: uid('cli'),
           name: data.name?.trim(),
           email: data.email?.trim(),
-          phone: data.phone?.trim(),
-          budgetMin: Number(data.budgetMin||0),
-          budgetMax: Number(data.budgetMax||0),
+          phoneMobile: data.phoneMobile?.trim(),
+          phoneAlt: data.phoneAlt?.trim(),
+          clientType: data.clientType,
+          contactPreferred: data.contactPreferred,
+          contactSource: data.contactSource,
+          typeWanted: data.typeWanted,
           zone: data.zone?.trim(),
-          type: data.type,
-          createdAt: new Date().toISOString(),
+          priceMin: Number(data.priceMin||0),
+          priceMax: Number(data.priceMax||0),
+          desiredFeatures: data.desiredFeatures?.trim(),
+          offerPropertyType: data.offerPropertyType,
+          offerAddress: data.offerAddress?.trim(),
+          offerPriceEstimate: Number(data.offerPriceEstimate||0),
+          advisorAssigned: data.advisorAssigned?.trim(),
+          status: data.status,
+          notes: data.notes?.trim(),
         };
-        const clients = db.get('clients', []);
-        clients.push(item);
-        db.set('clients', clients);
+        api.clients.create(item);
       }
       location.hash = '#/clientes';
     });
@@ -117,8 +219,7 @@ export function bindClientesEvents(root) {
     btn.addEventListener('click', ()=>{
       if (confirm('¿Eliminar cliente?')) {
         const id = btn.getAttribute('data-del');
-        const arr = db.get('clients', []).filter(c=>c.id!==id);
-        db.set('clients', arr);
+        api.clients.remove(id);
         location.hash = '#/clientes';
       }
     });
@@ -126,15 +227,26 @@ export function bindClientesEvents(root) {
   root.querySelectorAll('[data-edit]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const id = btn.getAttribute('data-edit');
-      const c = db.get('clients', []).find(x=>x.id===id);
+      const c = api.clients.get(id);
       if (!c || !form) return;
       form.name.value = c.name || '';
       form.email.value = c.email || '';
-      form.phone.value = c.phone || '';
-      form.budgetMin.value = c.budgetMin || '';
-      form.budgetMax.value = c.budgetMax || '';
+      form.phoneMobile.value = c.phoneMobile || c.phone || '';
+      form.phoneAlt.value = c.phoneAlt || '';
+      form.clientType.value = c.clientType || 'Comprador';
+      form.contactPreferred.value = c.contactPreferred || 'Teléfono';
+      form.contactSource.value = c.contactSource || 'Página web';
+      form.typeWanted.value = c.typeWanted || c.type || 'Casa';
       form.zone.value = c.zone || '';
-      form.type.value = c.type || 'Departamento';
+      form.priceMin.value = c.priceMin ?? c.budgetMin ?? '';
+      form.priceMax.value = c.priceMax ?? c.budgetMax ?? '';
+      form.desiredFeatures.value = c.desiredFeatures || '';
+      form.offerPropertyType.value = c.offerPropertyType || 'Casa';
+      form.offerAddress.value = c.offerAddress || '';
+      form.offerPriceEstimate.value = c.offerPriceEstimate || '';
+      form.advisorAssigned.value = c.advisorAssigned || '';
+      form.status.value = c.status || 'Nuevo';
+      form.notes.value = c.notes || '';
       form.id.value = c.id;
       btnSubmit.textContent = 'Guardar cambios';
       btnCancel.style.display = 'inline-block';
