@@ -3,9 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="CRM Inmobiliario — SPA sin backend con autenticación local, clientes, propiedades, pipeline y más." />
+  <meta name="description" content="CRM Inmobiliario — SPA sin backend (localStorage) con clientes, propiedades, asesores y dashboard." />
     <meta name="theme-color" content="#ffffff" />
-    <title>CRM Inmobiliario</title>
+  <title>CRM Inmobiliario</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="stylesheet" href="./assets/css/styles.css" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏠</text></svg>">
   </head>
@@ -13,12 +16,11 @@
     <a class="skip-link" href="#app">Saltar al contenido principal</a>
     <header class="topbar" role="banner">
       <div class="brand">🏠 CRM Inmobiliario</div>
-      <nav class="nav" role="navigation" aria-label="Secciones" style="display:none" aria-hidden="true">
+  <nav class="nav" role="navigation" aria-label="Secciones" style="display:flex" aria-hidden="false">
   <a href="#/dashboard" data-link>Dashboard</a>
         <a href="#/clientes" data-link>Clientes</a>
         <a href="#/propiedades" data-link>Propiedades</a>
         <a href="#/asesores" data-link>Asesores</a>
-  <a href="#/logout" data-link>Cerrar sesión</a>
       </nav>
     </header>
     <main id="app" class="container" role="main">
@@ -31,5 +33,12 @@
   <footer class="footer" role="contentinfo"></footer>
 
   <script type="module" src="./assets/js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(()=>{});
+      });
+    }
+  </script>
   </body>
   </html>

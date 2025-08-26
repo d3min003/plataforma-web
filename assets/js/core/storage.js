@@ -42,20 +42,37 @@ export function uid(prefix = 'id') {
 }
 
 export function seedIfEmpty() {
-  // Users: ensure admin-provided accounts exist
-  let users = db.get('users', null);
-  if (!Array.isArray(users)) users = [];
-  const ensureUser = (name, email, username, role, plainPass) => {
-    const exists = users.some(u => u.username === username || u.email === email);
-    if (!exists) {
-      const salt = makeSalt();
-      const hash = hashPassword(String(plainPass||''), salt);
-      users.push({ id: uid('usr'), name, email, username, role, salt, hash, createdAt: new Date().toISOString() });
-    }
-  };
-  ensureUser('Administrador', 'admin@example.com', 'admin', 'admin', 'Admin1234');
-  ensureUser('Asesor 1', 'asesor1@example.com', 'asesor1', 'asesor', 'Asesor1234');
-  db.set('users', users);
+  // Ensure collection exists
+  if (!db.get('users')) db.set('users', []);
+  // Seed demo users only if none exist, to match README credentials
+  const existing = db.get('users', []);
+  if (Array.isArray(existing) && existing.length === 0) {
+    const adminSalt = makeSalt();
+    const asesorSalt = makeSalt();
+    const seedUsers = [
+      {
+        id: uid('usr'),
+        name: 'Administrador',
+        email: 'admin@example.com',
+        username: 'admin',
+        role: 'admin',
+        salt: adminSalt,
+        hash: hashPassword('Admin@123', adminSalt),
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: uid('usr'),
+        name: 'Asesor 1',
+        email: 'asesor1@example.com',
+        username: 'asesor1',
+        role: 'asesor',
+        salt: asesorSalt,
+        hash: hashPassword('Asesor@123', asesorSalt),
+        createdAt: new Date().toISOString(),
+      },
+    ];
+    db.set('users', seedUsers);
+  }
 
   // Other collections remain empty by default
   if (!db.get('clients')) db.set('clients', []);

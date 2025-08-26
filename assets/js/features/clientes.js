@@ -1,8 +1,7 @@
-import { db } from '../core/storage.js';
-import { api } from '../core/api.js';
+import { db, uid } from '../core/storage.js';
 
 export function ClientesView() {
-  const clients = api.clients.list();
+  const clients = db.get('clients', []);
   return `
   <section class="card">
     <h2>Clientes</h2>
@@ -131,13 +130,61 @@ export function ClientesView() {
     </form>
   </section>
   <section class="card" style="margin-top:16px">
+    <div class="row" style="gap:8px; align-items:end; margin-bottom:8px">
+      <div style="flex:2">
+        <label>Búsqueda</label>
+        <input id="cliSearch" class="input" placeholder="Buscar (nombre, email, teléfono, zona)" />
+      </div>
+      <div>
+        <label>Tipo</label>
+        <select id="cliType" class="input">
+          <option value="">Todos</option>
+          <option>Comprador</option>
+          <option>Vendedor</option>
+          <option>Arrendador</option>
+          <option>Arrendatario</option>
+        </select>
+      </div>
+      <div>
+        <label>Estatus</label>
+        <select id="cliStatus" class="input">
+          <option value="">Todos</option>
+          <option>Nuevo</option>
+          <option>En contacto</option>
+          <option>En negociación</option>
+          <option>Cerrado</option>
+          <option>Perdido</option>
+        </select>
+      </div>
+      <div>
+        <label>Contacto</label>
+        <select id="cliContact" class="input">
+          <option value="">Todos</option>
+          <option>Teléfono</option>
+          <option>WhatsApp</option>
+          <option>Correo</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div>
+        <label>Presupuesto mín.</label>
+        <input id="cliBudgetMin" class="input" type="number" min="0" />
+      </div>
+      <div>
+        <label>Presupuesto máx.</label>
+        <input id="cliBudgetMax" class="input" type="number" min="0" />
+      </div>
+      <div>
+        <button id="cliFiltersClear" class="btn ghost" type="button">Limpiar</button>
+      </div>
+    </div>
     <table class="table">
       <thead>
         <tr>
           <th>Nombre</th><th>Tipo cliente</th><th>Estatus</th><th>Contacto</th><th>Zona</th><th>Rango</th><th></th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="tbClientes">
         ${clients.map(c => `
           <tr>
             <td>${c.name || ''}</td>
@@ -161,6 +208,122 @@ export function bindClientesEvents(root) {
   const form = root.querySelector('#formCliente');
   const btnSubmit = root.querySelector('#btnClienteSubmit');
   const btnCancel = root.querySelector('#btnClienteCancel');
+  // Filtering controls
+  const $tb = root.querySelector('#tbClientes');
+  const $q = root.querySelector('#cliSearch');
+  const $type = root.querySelector('#cliType');
+  const $status = root.querySelector('#cliStatus');
+  const $contact = root.querySelector('#cliContact');
+  const $min = root.querySelector('#cliBudgetMin');
+  const $max = root.querySelector('#cliBudgetMax');
+  const $clear = root.querySelector('#cliFiltersClear');
+
+  function renderRows(rows){
+    if (!$tb) return;
+    $tb.innerHTML = rows.map(c=>`
+      <tr>
+        <td>${c.name || ''}</td>
+        <td>${c.clientType || ''}</td>
+        <td>${c.status || 'Nuevo'}</td>
+        <td>${c.contactPreferred || ''}</td>
+        <td>${c.zone || ''}</td>
+        <td>${(c.priceMin ?? c.budgetMin ?? 0)} - ${(c.priceMax ?? c.budgetMax ?? 0)}</td>
+        <td style="text-align:right">
+          <button class="btn secondary" data-edit="${c.id}">Editar</button>
+          <button class="btn danger" data-del="${c.id}">Borrar</button>
+        </td>
+      </tr>
+    `).join('');
+    // Rebind row buttons
+    bindRowActions();
+  }
+
+  function applyFilters(){
+    const all = db.get('clients', []);
+    const q = ($q?.value || '').toLowerCase();
+    const t = $type?.value || '';
+    const st = $status?.value || '';
+    const cp = $contact?.value || '';
+    const fmin = Number($min?.value || '');
+    const fmax = Number($max?.value || '');
+    const hasMin = !Number.isNaN(fmin) && $min?.value !== '';
+    const hasMax = !Number.isNaN(fmax) && $max?.value !== '';
+    const rows = all.filter(c=>{
+      const text = `${c.name||''} ${c.email||''} ${c.phoneMobile||c.phone||''} ${c.zone||''}`.toLowerCase();
+      if (q && !text.includes(q)) return false;
+      if (t && (c.clientType||'') !== t) return false;
+      if (st && (c.status||'Nuevo') !== st) return false;
+      if (cp && (c.contactPreferred||'') !== cp) return false;
+      const cMin = Number(c.priceMin ?? c.budgetMin ?? 0);
+      const cMax = Number(c.priceMax ?? c.budgetMax ?? 0);
+      if (hasMin && cMax < fmin) return false; // no overlap
+      if (hasMax && cMin > fmax) return false;
+      return true;
+    });
+    renderRows(rows);
+  }
+
+  function clearFilters(){
+    if ($q) $q.value = '';
+    if ($type) $type.value = '';
+    if ($status) $status.value = '';
+    if ($contact) $contact.value = '';
+    if ($min) $min.value = '';
+    if ($max) $max.value = '';
+    renderRows(db.get('clients', []));
+  }
+
+  function bindRowActions(){
+    // Bind edit/delete buttons again after rerender
+    root.querySelectorAll('[data-del]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if (confirm('¿Eliminar cliente?')) {
+          const id = btn.getAttribute('data-del');
+          const left = db.get('clients', []).filter(c => c.id !== id);
+          db.set('clients', left);
+          applyFilters();
+        }
+      });
+    });
+    root.querySelectorAll('[data-edit]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-edit');
+        const c = db.get('clients', []).find(x => x.id === id);
+        if (!c || !form) return;
+        form.name.value = c.name || '';
+        form.email.value = c.email || '';
+        form.phoneMobile.value = c.phoneMobile || c.phone || '';
+        form.phoneAlt.value = c.phoneAlt || '';
+        form.clientType.value = c.clientType || 'Comprador';
+        form.contactPreferred.value = c.contactPreferred || 'Teléfono';
+        form.contactSource.value = c.contactSource || 'Página web';
+        form.typeWanted.value = c.typeWanted || c.type || 'Casa';
+        form.zone.value = c.zone || '';
+        form.priceMin.value = c.priceMin ?? c.budgetMin ?? '';
+        form.priceMax.value = c.priceMax ?? c.budgetMax ?? '';
+        form.desiredFeatures.value = c.desiredFeatures || '';
+        form.offerPropertyType.value = c.offerPropertyType || 'Casa';
+        form.offerAddress.value = c.offerAddress || '';
+        form.offerPriceEstimate.value = c.offerPriceEstimate || '';
+        form.advisorAssigned.value = c.advisorAssigned || '';
+        form.status.value = c.status || 'Nuevo';
+        form.notes.value = c.notes || '';
+        form.id.value = c.id;
+        btnSubmit.textContent = 'Guardar cambios';
+        btnCancel.style.display = 'inline-block';
+        form.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    });
+  }
+
+  // Wire up filters
+  $q?.addEventListener('input', applyFilters);
+  $type?.addEventListener('change', applyFilters);
+  $status?.addEventListener('change', applyFilters);
+  $contact?.addEventListener('change', applyFilters);
+  $min?.addEventListener('input', applyFilters);
+  $max?.addEventListener('input', applyFilters);
+  $clear?.addEventListener('click', clearFilters);
   if (form) {
     form.addEventListener('submit', (e)=>{
       e.preventDefault();
@@ -187,9 +350,10 @@ export function bindClientesEvents(root) {
           status: data.status,
           notes: data.notes?.trim(),
         };
-        api.clients.update(data.id, updated);
+        db.update('clients', data.id, updated);
       } else {
         const item = {
+          id: uid('cli'),
           name: data.name?.trim(),
           email: data.email?.trim(),
           phoneMobile: data.phoneMobile?.trim(),
@@ -209,48 +373,14 @@ export function bindClientesEvents(root) {
           status: data.status,
           notes: data.notes?.trim(),
         };
-        api.clients.create(item);
+  const all = db.get('clients', []);
+  all.push(item);
+  db.set('clients', all);
       }
       location.hash = '#/clientes';
     });
   }
   btnCancel?.addEventListener('click', ()=>{ location.hash = '#/clientes'; });
-  root.querySelectorAll('[data-del]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      if (confirm('¿Eliminar cliente?')) {
-        const id = btn.getAttribute('data-del');
-        api.clients.remove(id);
-        location.hash = '#/clientes';
-      }
-    });
-  });
-  root.querySelectorAll('[data-edit]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const id = btn.getAttribute('data-edit');
-      const c = api.clients.get(id);
-      if (!c || !form) return;
-      form.name.value = c.name || '';
-      form.email.value = c.email || '';
-      form.phoneMobile.value = c.phoneMobile || c.phone || '';
-      form.phoneAlt.value = c.phoneAlt || '';
-      form.clientType.value = c.clientType || 'Comprador';
-      form.contactPreferred.value = c.contactPreferred || 'Teléfono';
-      form.contactSource.value = c.contactSource || 'Página web';
-      form.typeWanted.value = c.typeWanted || c.type || 'Casa';
-      form.zone.value = c.zone || '';
-      form.priceMin.value = c.priceMin ?? c.budgetMin ?? '';
-      form.priceMax.value = c.priceMax ?? c.budgetMax ?? '';
-      form.desiredFeatures.value = c.desiredFeatures || '';
-      form.offerPropertyType.value = c.offerPropertyType || 'Casa';
-      form.offerAddress.value = c.offerAddress || '';
-      form.offerPriceEstimate.value = c.offerPriceEstimate || '';
-      form.advisorAssigned.value = c.advisorAssigned || '';
-      form.status.value = c.status || 'Nuevo';
-      form.notes.value = c.notes || '';
-      form.id.value = c.id;
-      btnSubmit.textContent = 'Guardar cambios';
-      btnCancel.style.display = 'inline-block';
-      form.scrollIntoView({behavior:'smooth', block:'start'});
-    });
-  });
+  // Initial bind and render ensure filters apply to current data
+  bindRowActions();
 }

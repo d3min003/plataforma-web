@@ -1,0 +1,18 @@
+{
+  "name": "CRM Inmobiliario",
+  "short_name": "CRM",
+  "start_url": ".",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "description": "CRM Inmobiliario — SPA sin backend (localStorage) con clientes, propiedades, asesores y dashboard.",
+  "icons": [
+    {
+      "src": "assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
