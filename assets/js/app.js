@@ -1,16 +1,20 @@
-import { seedIfEmpty, getSession } from './storage.js';
-import { register, startRouter } from './router.js';
-import { DashboardView, ClientesView, bindClientesEvents, PropiedadesView, bindPropiedadesEvents, PipelineView, bindPipelineEvents, AsesoresView, ConfigView, bindConfigEvents, LoginView, bindLoginEvents } from './views.js';
+import { seedIfEmpty, getSession } from './core/storage.js';
+import { register, startRouter } from './core/router.js';
+import { DashboardView, ClientesView, bindClientesEvents, PropiedadesView, bindPropiedadesEvents, PipelineView, bindPipelineEvents, AsesoresView, ConfigView, bindConfigEvents, LoginView, bindLoginEvents } from './features/index.js';
 
 seedIfEmpty();
 
-document.getElementById('year').textContent = String(new Date().getFullYear());
+const y = document.getElementById('year');
+if (y) y.textContent = String(new Date().getFullYear());
 
 // Simple session gate: if no session, route to login and hide nav links
 function updateNavVisibility(){
 	const session = getSession();
 	const nav = document.querySelector('.nav');
-	if (nav) nav.style.display = session ? 'flex' : 'none';
+	if (nav) {
+		nav.style.display = session ? 'flex' : 'none';
+		nav.setAttribute('aria-hidden', session ? 'false' : 'true');
+	}
 }
 
 register('#/login', LoginView, (root)=>{ bindLoginEvents(root); updateNavVisibility(); });

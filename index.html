@@ -3,14 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="CRM Inmobiliario — SPA sin backend con autenticación local, clientes, propiedades, pipeline y más." />
+    <meta name="theme-color" content="#ffffff" />
     <title>CRM Inmobiliario</title>
   <link rel="stylesheet" href="./assets/css/styles.css" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏠</text></svg>">
   </head>
   <body>
-    <header class="topbar">
+    <a class="skip-link" href="#app">Saltar al contenido principal</a>
+    <header class="topbar" role="banner">
       <div class="brand">🏠 CRM Inmobiliario</div>
-      <nav class="nav" style="display:none">
+      <nav class="nav" role="navigation" aria-label="Secciones" style="display:none" aria-hidden="true">
         <a href="#/dashboard" data-link>Dashboard</a>
         <a href="#/clientes" data-link>Clientes</a>
         <a href="#/propiedades" data-link>Propiedades</a>
@@ -19,15 +22,14 @@
         <a href="#/config" data-link>Config</a>
       </nav>
     </header>
-    <main id="app" class="container">
+    <main id="app" class="container" role="main">
       <!-- contenido dinámico -->
+      <noscript>
+        <p>Esta aplicación requiere JavaScript para funcionar. Por favor, habilítalo en tu navegador.</p>
+      </noscript>
     </main>
 
-    <footer class="footer">
-      <span>© <span id="year"></span> CRM Inmobiliario — sin backend, datos en tu navegador</span>
-      <a href="https://plataforma-web-gules.vercel.app/" target="_blank" rel="noreferrer">Demo</a>
-      <a href="https://github.com/d3min003/plataforma-web" target="_blank" rel="noreferrer">GitHub</a>
-    </footer>
+  <footer class="footer" role="contentinfo"></footer>
 
   <script type="module" src="./assets/js/app.js"></script>
   </body>

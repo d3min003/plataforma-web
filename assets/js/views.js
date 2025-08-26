@@ -319,8 +319,7 @@ export function PropiedadesView() {
 				</select>
 			</div>
 			<div style="grid-column: span 6">
-				<label>Descripción</label>
-				<textarea class="input" name="description" rows="2" placeholder="Descripción breve..."></textarea>
+				
 			</div>
 
 			<div style="grid-column: span 6"><h3>Ubicación</h3></div>
@@ -472,7 +471,6 @@ export function bindPropiedadesEvents(root) {
 			if (isEdit) {
 				db.update('properties', data.id, {
 					title: data.title?.trim(),
-					description: data.description?.trim(),
 					price: Number(data.price||0),
 					currency: data.currency,
 					operation: data.operation,
@@ -498,7 +496,6 @@ export function bindPropiedadesEvents(root) {
 				const item = {
 					id: uid('prop'),
 					title: data.title?.trim(),
-					description: data.description?.trim(),
 					price: Number(data.price||0),
 					currency: data.currency,
 					operation: data.operation,
@@ -558,7 +555,6 @@ export function bindPropiedadesEvents(root) {
 			if (!p || !form) return;
 			form.id.value = p.id;
 			form.title.value = p.title || '';
-			form.description.value = p.description || '';
 			form.price.value = p.price || '';
 			form.currency.value = p.currency || 'MXN';
 			form.operation.value = p.operation || 'Venta';

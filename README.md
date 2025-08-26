@@ -10,9 +10,9 @@ Plataforma CRM para gestión inmobiliaria sin backend. Todos los datos se almace
 - Clientes: registro, edición, segmentación (presupuesto, zona, tipo).
 - Propiedades: alta/edición, estado (disponible/negociación/reservado/vendido).
 - Pipeline: tablero Kanban con drag & drop para cambiar estado.
-- Acceso: login con usuario/contraseña y registro local (hash + salt en localStorage).
+- Acceso: solo login con usuario/contraseña provistos (hash + salt en localStorage).
 - Asesores: listado básico de usuarios no-admin.
-- Configuración: exportar/importar JSON y reset local.
+- Configuración: exportar JSON y reset local (importar deshabilitado).
 
 ## 🛠️ Tecnologías
 - Frontend: HTML, CSS, JavaScript
@@ -23,10 +23,11 @@ Plataforma CRM para gestión inmobiliaria sin backend. Todos los datos se almace
 - Sin servidor local: abre `index.html` directamente en tu navegador si necesitas probar offline.
 
 ### Acceso y cuentas
-- En la pantalla de Acceso puedes:
-	- Iniciar sesión con usuario/email y contraseña si ya existe la cuenta.
-	- Crear una cuenta local (elige nombre, usuario, email, rol y contraseña). Las contraseñas se guardan con hash y salt sólo para evitar texto plano (no es seguridad de producción).
-	- También puedes importar usuarios desde Configuración con un JSON compatible.
+- Cuentas preconfiguradas (demo):
+	- admin / Admin1234 (rol: admin)
+	- asesor1 / Asesor1234 (rol: asesor)
+	Puedes ingresar con usuario o email. Las contraseñas se almacenan como hash+salt en localStorage (no es seguridad de producción).
+	Importación de usuarios deshabilitada. No hay auto-registro.
 
 ## 📦 Estructura
 ```
@@ -36,10 +37,19 @@ Plataforma CRM para gestión inmobiliaria sin backend. Todos los datos se almace
 │  ├─ /css
 │  │  └─ styles.css
 │  └─ /js
-│     ├─ app.js        # arranque y rutas
-│     ├─ router.js     # enrutador por hash
-│     ├─ storage.js    # wrapper de localStorage + seed
-│     └─ views.js      # vistas y bindings
+│     ├─ app.js             # bootstrap y registro de rutas
+│     ├─ /core              # núcleo (router + storage)
+│     │  ├─ router.js       # enrutador por hash
+│     │  └─ storage.js      # wrapper de localStorage + sesión + hash
+│     └─ /features          # módulos por funcionalidad
+│        ├─ index.js        # barrel de exports
+│        ├─ auth.js         # login
+│        ├─ dashboard.js    # métricas
+│        ├─ clientes.js     # CRUD clientes
+│        ├─ propiedades.js  # CRUD propiedades
+│        ├─ pipeline.js     # Kanban DnD
+│        ├─ asesores.js     # listado asesores
+│        └─ config.js       # export/reset
 ```
 
 ## 🗺️ Roadmap (MVP)
@@ -47,7 +57,7 @@ Plataforma CRM para gestión inmobiliaria sin backend. Todos los datos se almace
 - [x] CRUD propiedades + estados
 - [x] Tablero Kanban con drag & drop
 - [x] Listado de asesores (seed)
-- [x] Exportar/Importar JSON
+- [x] Exportar JSON (importar deshabilitado)
 - [ ] Filtros avanzados y búsqueda
 - [ ] Métricas básicas (dashboard)
 - [ ] PWA (offline + installable)
