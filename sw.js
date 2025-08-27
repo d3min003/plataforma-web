@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crm-inmo-v1';
+const CACHE_NAME = 'crm-inmo-v2';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -9,6 +9,7 @@ const APP_SHELL = [
   '/assets/js/core/storage.js',
   '/assets/js/core/api.js',
   '/assets/js/features/index.js',
+  '/assets/js/features/auth.js',
   '/assets/js/features/dashboard.js',
   '/assets/js/features/clientes.js',
   '/assets/js/features/propiedades.js',

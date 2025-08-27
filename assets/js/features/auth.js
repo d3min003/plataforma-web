@@ -22,7 +22,7 @@ export function LoginView() {
 				<button type="submit" class="btn primary" id="loginSubmit">Entrar</button>
 			</form>
 			<div id="loginError" role="alert" style="display:none; color:#b00020; margin-top:8px;">Credenciales inválidas</div>
-			<p class="small" style="opacity:.7; margin-top:12px;">Demo: usuario <code>${USER}</code></p>
+			
 		</section>
 	`;
 }

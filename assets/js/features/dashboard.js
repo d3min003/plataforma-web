@@ -195,7 +195,7 @@ export function bindDashboardEvents(root){
   });
   root.querySelectorAll('.dropzone').forEach(zone=>{
     zone.addEventListener('dragover', (e)=>{ e.preventDefault(); });
-    zone.addEventListener('drop', ()=>{
+  zone.addEventListener('drop', ()=>{
       if (!dragId) return;
       const status = zone.getAttribute('data-status');
       const arr = db.get('properties', []);
@@ -203,7 +203,10 @@ export function bindDashboardEvents(root){
       if (p) {
         p.status = status;
         db.set('properties', arr);
-        location.hash = '#/dashboard';
+    // Move element to new zone in-place without full rerender
+    const el = root.querySelector(`.card-item[data-id="${dragId}"]`);
+    const target = zone;
+    if (el && target) target.appendChild(el);
       }
     });
   });

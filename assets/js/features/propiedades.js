@@ -234,7 +234,14 @@ export function bindPropiedadesEvents(root) {
         arr.push(item);
         db.set('properties', arr);
       }
-      location.hash = '#/propiedades';
+      const hadEdit = (location.hash.includes('?edit='));
+      if (hadEdit) {
+        location.hash = '#/propiedades';
+      } else {
+        if (form) { form.reset(); form.id.value=''; }
+        btnSubmit.textContent = 'Guardar propiedad';
+        if (btnCancel) btnCancel.style.display = 'none';
+      }
     });
   }
   btnCancel?.addEventListener('click', ()=>{ clearPropForm(); });

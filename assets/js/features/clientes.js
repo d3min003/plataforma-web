@@ -222,7 +222,16 @@ export function bindClientesEvents(root) {
     // Crear en backend si está configurado (no bloqueante)
     try { api.clients.create(item); } catch {}
       }
-      location.hash = '#/clientes';
+      // Navegación: si veníamos de ?edit=..., quitarlo; en alta nueva solo limpiar formulario
+      const hadEdit = (location.hash.includes('?edit='));
+      if (hadEdit) {
+        location.hash = '#/clientes';
+      } else {
+        form.reset();
+        form.id.value = '';
+        btnSubmit.textContent = 'Guardar cliente';
+        if (btnCancel) btnCancel.style.display = 'none';
+      }
     });
   }
   btnCancel?.addEventListener('click', ()=>{ location.hash = '#/clientes'; });
