@@ -71,3 +71,6 @@ fieldset{border:0; padding:0; margin:0}
   .kanban{grid-template-columns: 1fr}
   .topbar{flex-direction:column; align-items:flex-start; gap:8px}
 }
+
+/* Legacy duplicate stylesheet. Not used.
+   Use /assets/css/styles.css instead. */

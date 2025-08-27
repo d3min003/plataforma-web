@@ -47,7 +47,9 @@ Plataforma CRM para gestión inmobiliaria sin backend. Todos los datos se almace
 - [x] CRUD propiedades + estados
 - [x] Tablero Kanban con drag & drop
 - [x] Listado de asesores (seed)
-- [x] Filtros avanzados y búsqueda
+- [x] Dashboard Clientes: filtros avanzados y búsqueda
+- [x] Dashboard Propiedades: filtros avanzados y búsqueda
+- [ ] Dashboard Asesores: filtros y búsqueda
 - [x] Métricas básicas (dashboard)
 
 
@@ -82,3 +84,7 @@ Notas
 - La sincronización remota es best-effort: si falla la red o credenciales, no rompe la UI ni bloquea acciones.
 - Se almacena el ID remoto (remoteId) cuando está disponible para facilitar reconciliación.
 
+## Repositorios GitHub
+
+- Base de datos central (este proyecto): https://github.com/d3min003/base-datos-central
+- Plataforma web (CRM): https://github.com/d3min003/plataforma-web

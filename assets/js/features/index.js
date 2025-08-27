@@ -4,3 +4,4 @@ export { PropiedadesView, bindPropiedadesEvents } from './propiedades.js';
 // Pipeline merged into dashboard
 // Config removed; logout handled globally
 export { AsesoresView, bindAsesoresEvents } from './asesores.js';
+export { LoginView, bindLoginEvents } from './auth.js';

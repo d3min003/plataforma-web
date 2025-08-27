@@ -7,6 +7,7 @@ const APP_SHELL = [
   '/assets/js/app.js',
   '/assets/js/core/router.js',
   '/assets/js/core/storage.js',
+  '/assets/js/core/api.js',
   '/assets/js/features/index.js',
   '/assets/js/features/dashboard.js',
   '/assets/js/features/clientes.js',

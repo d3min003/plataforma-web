@@ -16,12 +16,13 @@
     <a class="skip-link" href="#app">Saltar al contenido principal</a>
     <header class="topbar" role="banner">
       <div class="brand">🏠 CRM Inmobiliario</div>
-  <nav class="nav" role="navigation" aria-label="Secciones" style="display:flex" aria-hidden="false">
+  <nav class="nav" role="navigation" aria-label="Secciones" style="display:none" aria-hidden="true">
   <a href="#/dashboard" data-link>Dashboard</a>
         <a href="#/clientes" data-link>Clientes</a>
         <a href="#/propiedades" data-link>Propiedades</a>
         <a href="#/asesores" data-link>Asesores</a>
       </nav>
+  <button id="logout" class="btn" style="display:none; margin-left:auto" aria-label="Cerrar sesión">Salir</button>
     </header>
     <main id="app" class="container" role="main">
       <!-- contenido dinámico -->
@@ -30,7 +31,7 @@
       </noscript>
     </main>
 
-  <footer class="footer" role="contentinfo"></footer>
+  <footer class="footer" role="contentinfo">© <span id="year"></span> CRM Inmobiliario</footer>
 
   <script type="module" src="./assets/js/app.js"></script>
   <script>
