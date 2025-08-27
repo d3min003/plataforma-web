@@ -1,10 +1,15 @@
 import { db, uid } from '../core/storage.js';
+import { api } from '../core/api.js';
 
 export function ClientesView() {
   const clients = db.get('clients', []);
   return `
   <section class="card">
     <h2>Clientes</h2>
+    <div class="row" style="justify-content:space-between; align-items:center; margin:4px 0 12px">
+      <small style="opacity:.8">La app funciona offline. Si configuras backend, los cambios se sincronizan en segundo plano.</small>
+      <button id="btnTestConn" class="btn secondary" type="button">Probar conexión</button>
+    </div>
     <form id="formCliente" class="grid" style="grid-template-columns: repeat(6, 1fr); align-items:end; gap:12px">
       <input type="hidden" name="id" />
 
@@ -208,6 +213,7 @@ export function bindClientesEvents(root) {
   const form = root.querySelector('#formCliente');
   const btnSubmit = root.querySelector('#btnClienteSubmit');
   const btnCancel = root.querySelector('#btnClienteCancel');
+  const btnTest = root.querySelector('#btnTestConn');
   // Filtering controls
   const $tb = root.querySelector('#tbClientes');
   const $q = root.querySelector('#cliSearch');
@@ -325,7 +331,7 @@ export function bindClientesEvents(root) {
   $max?.addEventListener('input', applyFilters);
   $clear?.addEventListener('click', clearFilters);
   if (form) {
-    form.addEventListener('submit', (e)=>{
+  form.addEventListener('submit', (e)=>{
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form));
       const isEdit = !!data.id;
@@ -351,6 +357,8 @@ export function bindClientesEvents(root) {
           notes: data.notes?.trim(),
         };
         db.update('clients', data.id, updated);
+    // Sincronización remota (no bloqueante)
+    try { api.clients.upsert({ id: data.id, ...updated }); } catch {}
       } else {
         const item = {
           id: uid('cli'),
@@ -376,11 +384,26 @@ export function bindClientesEvents(root) {
   const all = db.get('clients', []);
   all.push(item);
   db.set('clients', all);
+    // Crear en backend si está configurado (no bloqueante)
+    try { api.clients.create(item); } catch {}
       }
       location.hash = '#/clientes';
     });
   }
   btnCancel?.addEventListener('click', ()=>{ location.hash = '#/clientes'; });
+  btnTest?.addEventListener('click', async ()=>{
+    try{
+      const res = await api.test();
+      if (res?.ok) {
+        alert('Conexión OK: autenticación válida.');
+      } else {
+        const msg = res?.reason || 'error';
+        alert('Conexión falló: ' + msg);
+      }
+    }catch(err){
+      alert('Conexión falló: ' + (err?.message || String(err)));
+    }
+  });
   // Initial bind and render ensure filters apply to current data
   bindRowActions();
 }

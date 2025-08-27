@@ -1,102 +1,186 @@
-// Capa API: abstrae acceso a datos (localStorage + sincronización opcional con backend)
-import { db, uid } from './storage.js';
+// Capa API para integración opcional con "base-datos-central"
+// - Headers requeridos: X-API-KEY, X-ORG-ID
+// - Endpoints usados: POST /clients, GET /clients/:id, POST /batch/clients/import
+// Mantiene el comportamiento offline-first: si no hay config válida, no hace llamadas remotas.
 
-const API_BASE = window.CRM_API_BASE || '';
-const hasRemote = typeof API_BASE === 'string' && API_BASE.length > 0;
+import { db } from './storage.js';
+
+const KEYS = {
+  base: 'crm.api.base',
+  key: 'crm.api.key',
+  org: 'crm.api.org'
+};
+
+function loadConfig(){
+  return {
+    base: (window.CRM_API_BASE || localStorage.getItem(KEYS.base) || '').toString(),
+    apiKey: (window.CRM_API_KEY || localStorage.getItem(KEYS.key) || '').toString(),
+    orgId: (window.CRM_ORG_ID || localStorage.getItem(KEYS.org) || '').toString()
+  };
+}
+
+let config = loadConfig();
+function enabled(){
+  return !!(config.base && config.apiKey && config.orgId);
+}
 
 async function http(method, path, body){
-  if (!hasRemote) return null;
+  if (!enabled()) return null;
+  const url = `${config.base}${path}`;
   try{
-    const res = await fetch(`${API_BASE}${path}`, {
+    const res = await fetch(url, {
       method,
-      headers: { 'Content-Type':'application/json' },
-      body: body ? JSON.stringify(body) : undefined,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-API-KEY': config.apiKey,
+        'X-ORG-ID': config.orgId
+      },
+      body: body !== undefined ? JSON.stringify(body) : undefined
     });
     if (!res.ok) throw new Error(await res.text().catch(()=>res.statusText));
-    return await res.json().catch(()=>null);
+    const ct = res.headers.get('content-type') || '';
+    if (ct.includes('application/json')) return await res.json();
+    return null;
   }catch(err){
-    console.warn('API error', method, path, err?.message || err);
+    console.warn('[remote api] error', method, path, err?.message || err);
     return null;
   }
 }
 
-const isNumericId = (id)=> /^\d+$/.test(String(id));
+function splitName(full){
+  const s = (full||'').trim().split(/\s+/);
+  if (s.length === 0) return { first:'', last:'' };
+  if (s.length === 1) return { first:s[0], last:'' };
+  return { first: s[0], last: s.slice(1).join(' ') };
+}
 
 export const api = {
+  configure(newCfg){
+    config = {
+      base: newCfg.base ?? config.base,
+      apiKey: newCfg.apiKey ?? config.apiKey,
+      orgId: newCfg.orgId ?? config.orgId
+    };
+    if (newCfg.base !== undefined) localStorage.setItem(KEYS.base, String(config.base||''));
+    if (newCfg.apiKey !== undefined) localStorage.setItem(KEYS.key, String(config.apiKey||''));
+    if (newCfg.orgId !== undefined) localStorage.setItem(KEYS.org, String(config.orgId||''));
+  },
+  isEnabled: enabled,
   clients: {
-    list(){
-      const cur = db.get('clients', []);
-      // Prefetch/sync en segundo plano si hay backend
-      if (hasRemote && (!cur || cur.length===0)){
-        http('GET','/clientes').then(data=>{ if (Array.isArray(data)) db.set('clients', data); });
+    // Crea en remoto y devuelve el objeto remoto (o null si falla). No altera UI si falla.
+    async create(local){
+      if (!enabled()) return null;
+      const { first, last } = splitName(local.name || '');
+      const payload = {
+        organization_id: config.orgId,
+        external_id: local.id || null,
+        first_name: first,
+        last_name: last,
+        email: local.email || null,
+        phone: local.phoneMobile || local.phone || null,
+        attributes: {
+          clientType: local.clientType,
+          contactPreferred: local.contactPreferred,
+          contactSource: local.contactSource,
+          typeWanted: local.typeWanted || local.type,
+          zone: local.zone,
+          priceMin: local.priceMin ?? local.budgetMin,
+          priceMax: local.priceMax ?? local.budgetMax,
+          desiredFeatures: local.desiredFeatures,
+          offerPropertyType: local.offerPropertyType,
+          offerAddress: local.offerAddress,
+          offerPriceEstimate: local.offerPriceEstimate,
+          advisorAssigned: local.advisorAssigned,
+          status: local.status,
+          notes: local.notes
+        }
+      };
+      const created = await http('POST', '/clients', payload);
+      if (created && created.id){
+        // Guarda el id remoto para referencia futura
+        const arr = db.get('clients', []);
+        const i = arr.findIndex(x=> String(x.id) === String(local.id));
+        if (i>=0){
+          arr[i] = { ...arr[i], remoteId: created.id };
+          db.set('clients', arr);
+        }
       }
-      return db.get('clients', []);
+      return created;
     },
-    get(id){
-      const arr = db.get('clients', []);
-      const found = arr.find(c=> String(c.id) === String(id));
-      if (!found && hasRemote){
-        http('GET', `/clientes/${encodeURIComponent(id)}`).then(d=>{
-          if (d){ const a = db.get('clients', []); if (!a.find(x=>String(x.id)===String(d.id))) { a.push(d); db.set('clients', a); } }
-        });
-      }
-      return found || null;
+    // Upsert vía import batch (acepta array JSON) — útil para updates
+    async upsert(local){
+      if (!enabled()) return null;
+      const { first, last } = splitName(local.name || '');
+      const row = {
+        organization_id: config.orgId,
+        external_id: local.id || null,
+        first_name: first,
+        last_name: last,
+        email: local.email || null,
+        phone: local.phoneMobile || local.phone || null,
+        attributes: {
+          clientType: local.clientType,
+          contactPreferred: local.contactPreferred,
+          contactSource: local.contactSource,
+          typeWanted: local.typeWanted || local.type,
+          zone: local.zone,
+          priceMin: local.priceMin ?? local.budgetMin,
+          priceMax: local.priceMax ?? local.budgetMax,
+          desiredFeatures: local.desiredFeatures,
+          offerPropertyType: local.offerPropertyType,
+          offerAddress: local.offerAddress,
+          offerPriceEstimate: local.offerPriceEstimate,
+          advisorAssigned: local.advisorAssigned,
+          status: local.status,
+          notes: local.notes
+        }
+      };
+      return await http('POST', '/batch/clients/import', [row]);
     },
-    create(data){
-      // Persistencia local inmediata (optimista)
-      const tempId = data.id || uid('cli');
-      const localItem = { id: tempId, createdAt: new Date().toISOString(), ...data };
-      const arr = db.get('clients', []); arr.push(localItem); db.set('clients', arr);
-
-      // Sincronizar con backend (map mínimo según API base-datos-central)
-      http('POST','/clientes', {
-        name: data.name || '',
-        email: data.email || null,
-        phone: data.phoneMobile || data.phone || null,
-        advisor_id: null,
-      }).then(created=>{
-        if (created && created.id){
-          // Reemplazar tempId por id real
-          const a = db.get('clients', []);
-          const i = a.findIndex(x=> String(x.id)===String(tempId));
-          if (i>=0) { a[i] = { ...a[i], id: created.id }; db.set('clients', a); }
+    async get(id){
+      if (!enabled()) return null;
+      return await http('GET', `/clients/${encodeURIComponent(id)}`);
+    }
+  },
+  // endpoints adicionales disponibles para futuro uso
+  interactions: {
+    async create(payload){
+      if (!enabled()) return null;
+      return await http('POST', '/interactions', payload);
+    }
+  },
+  sales: {
+    async create(payload){
+      if (!enabled()) return null;
+      return await http('POST', '/sales', payload);
+    }
+  },
+  // Prueba de conectividad/autenticación sin efectos secundarios
+  async test(){
+    if (!enabled()) return { ok:false, reason:'not-configured' };
+    const url = `${config.base}/clients/${encodeURIComponent('00000000-0000-0000-0000-000000000000')}`;
+    try{
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'X-API-KEY': config.apiKey,
+          'X-ORG-ID': config.orgId
         }
       });
-
-      return localItem;
-    },
-    update(id, patch){
-      const updated = db.update('clients', id, patch);
-      if (hasRemote && isNumericId(id)){
-        http('PUT', `/clientes/${encodeURIComponent(id)}`, {
-          name: patch.name,
-          email: patch.email,
-          phone: patch.phoneMobile || patch.phone,
-          advisor_id: null,
-        });
-      }
-      return updated;
-    },
-    remove(id){
-      const ok = db.remove('clients', id);
-      if (hasRemote && isNumericId(id)){
-        http('DELETE', `/clientes/${encodeURIComponent(id)}`);
-      }
-      return ok;
-    },
-  },
-  properties: {
-    list(){
-      const cur = db.get('properties', []);
-      if (hasRemote && (!cur || cur.length===0)){
-        http('GET','/propiedades').then(d=>{ if (Array.isArray(d)) db.set('properties', d); });
-      }
-      return db.get('properties', []);
-    },
-  },
-  users: {
-    list(){ return db.get('users', []); },
+      if (res.status === 401) return { ok:false, reason:'unauthorized' };
+      if (res.status === 403) return { ok:false, reason:'forbidden' };
+      if (res.status === 404) return { ok:true, reason:'not-found-ok' }; // ruta y auth válidas
+      if (res.ok) return { ok:true, reason:'ok' };
+      return { ok:false, reason:`http-${res.status}` };
+    }catch(err){
+      return { ok:false, reason:'network', error: String(err && err.message || err) };
+    }
   }
 };
 
-// Para usar backend central, define window.CRM_API_BASE = "https://tu-dominio-o-host:8080" antes de cargar app.js.
+// Config rápida opcional via globals (antes de app.js):
+// window.CRM_API_BASE = 'http://localhost:3000';
+// window.CRM_API_KEY = '...' // API_KEY_CRM o API_KEY_ADMIN
+// window.CRM_ORG_ID = '...'  // UUID de la organización

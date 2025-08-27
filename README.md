@@ -47,11 +47,38 @@ Plataforma CRM para gestión inmobiliaria sin backend. Todos los datos se almace
 - [x] CRUD propiedades + estados
 - [x] Tablero Kanban con drag & drop
 - [x] Listado de asesores (seed)
-- [ ] Filtros avanzados y búsqueda
+- [x] Filtros avanzados y búsqueda
 - [x] Métricas básicas (dashboard)
 
 
 
 # Idiomas disponibles
 - Español
+
+
+## 🔗 Integración opcional con backend "base-datos-central"
+- Soportado para Clientes mediante API-key y multi-tenant por cabeceras.
+- Offline-first: si no configuras conexión, la app funciona 100% local.
+
+Cómo configurar (opción rápida en index.html, antes de cargar app.js):
+
+```html
+<script>
+	window.CRM_API_BASE = 'http://localhost:3000'; // URL del backend
+	window.CRM_API_KEY  = '...';                   // API key (admin o crm_service)
+	window.CRM_ORG_ID   = '...';                   // UUID de la organización
+	// También puedes guardar estos valores en localStorage con claves:
+	// crm.api.base, crm.api.key, crm.api.org
+	// La capa API los tomará automáticamente.
+	// Módulo: assets/js/core/api.js
+	// Uso actual: creación/edición de Clientes hace upsert en remoto sin bloquear la UI.
+	// Endpoints usados: POST /clients, POST /batch/clients/import
+	// Próximos: /interactions, /sales
+	// Nota: Propiedades siguen locales hasta que exista endpoint en el backend.
+</script>
+```
+
+Notas
+- La sincronización remota es best-effort: si falla la red o credenciales, no rompe la UI ni bloquea acciones.
+- Se almacena el ID remoto (remoteId) cuando está disponible para facilitar reconciliación.
 
