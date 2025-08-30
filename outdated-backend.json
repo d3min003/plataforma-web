@@ -1,0 +1,51 @@
+﻿{
+  "bcryptjs": {
+    "current": "2.4.3",
+    "wanted": "2.4.3",
+    "latest": "3.0.2",
+    "dependent": "backend",
+    "location": "C:\\Users\\J4vie\\Desktop\\plataforma-web\\backend\\node_modules\\bcryptjs"
+  },
+  "dotenv": {
+    "current": "16.6.1",
+    "wanted": "16.6.1",
+    "latest": "17.2.1",
+    "dependent": "backend",
+    "location": "C:\\Users\\J4vie\\Desktop\\plataforma-web\\backend\\node_modules\\dotenv"
+  },
+  "express": {
+    "current": "4.21.2",
+    "wanted": "4.21.2",
+    "latest": "5.1.0",
+    "dependent": "backend",
+    "location": "C:\\Users\\J4vie\\Desktop\\plataforma-web\\backend\\node_modules\\express"
+  },
+  "express-rate-limit": {
+    "current": "6.11.2",
+    "wanted": "6.11.2",
+    "latest": "8.0.1",
+    "dependent": "backend",
+    "location": "C:\\Users\\J4vie\\Desktop\\plataforma-web\\backend\\node_modules\\express-rate-limit"
+  },
+  "helmet": {
+    "current": "7.2.0",
+    "wanted": "7.2.0",
+    "latest": "8.1.0",
+    "dependent": "backend",
+    "location": "C:\\Users\\J4vie\\Desktop\\plataforma-web\\backend\\node_modules\\helmet"
+  },
+  "uuid": {
+    "current": "9.0.1",
+    "wanted": "9.0.1",
+    "latest": "11.1.0",
+    "dependent": "backend",
+    "location": "C:\\Users\\J4vie\\Desktop\\plataforma-web\\backend\\node_modules\\uuid"
+  },
+  "zod": {
+    "current": "3.25.76",
+    "wanted": "3.25.76",
+    "latest": "4.1.5",
+    "dependent": "backend",
+    "location": "C:\\Users\\J4vie\\Desktop\\plataforma-web\\backend\\node_modules\\zod"
+  }
+}

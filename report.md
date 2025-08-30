@@ -1,18 +1,49 @@
 # Reporte de Estado — Plataforma Web (CRM)
 
 ## Resumen Ejecutivo
-- Estado general: 🟡 Degradado (pendiente verificación local de backend y conexión a BD)
-- Claves:
-  - Frontend SPA estable (localStorage + PWA); navegación y módulos operativos.
-  - Backend ligero (Express + PostgreSQL + JWT) presente en `/backend`, sin verificación de ejecución local en este corte.
-  - Script de conexión a BD central disponible (`test-db-connection.js`), pendiente de ejecución con `.env` real.
+- Estado general: 🟡 Degradado — errores de conectividad e integración detectados en esta sesión.
+- Hallazgos principales:
+  - Backend Express presente en `backend/` pero no accesible desde esta máquina durante la verificación (ECONNREFUSED 127.0.0.1:8080).
+  - El script de comprobación de BD (`test-db-connection.js`) falló cuando se ejecutó desde la raíz por falta del módulo `dotenv`; el script está pensado para ejecutarse con las dependencias disponibles (se recomienda ejecutarlo desde `backend/`).
+  - El repo contiene `backend/.env.example` con valores placeholder; no hay `.env` con credenciales reales en este workspace — por tanto no se pudo verificar la conectividad real contra la BD central.
+  - Auditoría de dependencias fue ejecutada en `backend/` y su salida se guardó en `audit-backend.json` (0 vulnerabilidades encontradas en el momento); `npm outdated` generó `outdated-backend.json` con paquetes con nuevas versiones.
 
-## Semáforos
+## Estado de semáforos (resumen rápido)
 - 🟢 Frontend SPA (build estático, rutas y UI)
-- 🟡 Backend ligero (presente; falta levantar y validar en este entorno)
-- 🟡 Conexión BD central (script listo; falta ejecutar con credenciales)
-- 🟡 Seguridad (CORS/HTTPS configurables; auditoría/lint/tests pendientes)
+- 🟡 Backend ligero (presente; fallo de health-check local en esta sesión)
+- 🟡 Conexión BD central (script listo; falta ejecutarlo con `.env` real desde `backend/`)
+- 🟡 Seguridad (CORS/HTTPS configurables; revisar y aplicar en producción)
 - 🟢 PWA básica (manifest + service worker)
+
+## Errores identificados (consecuencia / evidencia)
+- Backend no respondiente
+  - Error: ECONNREFUSED 127.0.0.1:8080
+  - Estado: Health check local falló
+  - Impacto: API no accesible desde frontend / pipelines de integración
+  - Evidencia: intento GET a `/healthz` devolvió conexión rechazada en esta sesión
+- Test de BD con dependencias faltantes
+  - Error: "Cannot find module 'dotenv'" al ejecutar `node .\test-db-connection.js` desde la raíz
+  - Estado: Script mal ubicado o ejecutado sin node_modules adecuados
+  - Impacto: Sin verificación de conectividad con BD Central desde esta máquina
+- Archivo `.env` ausente o con placeholders
+  - Error: `backend/.env.example` contiene placeholders; no hay `.env` con credenciales reales
+  - Estado: Sin credenciales reales configuradas en este workspace
+  - Impacto: Imposible establecer conexión real a BD Central
+- Persistencia local en frontend
+  - Error: Uso principal de `localStorage` en frontend
+  - Impacto: Datos quedan aislados en cada cliente sin sincronización central
+- Integración AI inexistente
+  - Error: No hay endpoints ni proxy hacia servicio AI
+  - Impacto: No hay capacidades de análisis/insights automatizados
+- JWT no compartido con AI/otros servicios
+  - Error: No hay mecanismo documentado para compartir secretos o JWKS entre servicios
+  - Impacto: Tokens no válidos entre servicios y problemas de interoperabilidad
+- CORS sin restricciones para producción
+  - Error: `CORS_ORIGIN` no fijado a dominios de producción en el entorno actual
+  - Impacto: Riesgo de uso inapropiado por orígenes no deseados
+- Auditoría de dependencias sin análisis completo
+  - Error: `npm audit --production` ejecutado y guardado, pero resultados aún por revisar y priorizar (archivo `audit-backend.json`)
+  - Impacto: Posibles vulnerabilidades o dependencias críticas sin plan de mitigación
 
 ## Inventario del Proyecto
 - Stack
@@ -152,9 +183,44 @@ found 0 vulnerabilities
 
 - Intento de health-check desde esta máquina (PowerShell):
 
+Acciones ejecutadas en esta sesión (resumen y evidencias)
+
+- Intento de health-check local:
+  - Comando intentado desde PowerShell y Node: GET http://127.0.0.1:8080/healthz
+  - Resultado: ERROR connect ECONNREFUSED 127.0.0.1:8080 (el servidor no respondió en el momento del chequeo).
+
+- Intento de ejecutar `test-db-connection.js` desde la raíz del repo:
+  - Comando: `node .\test-db-connection.js`
+  - Resultado: fallo por dependencia ausente: "Cannot find module 'dotenv'". El script está diseñado para ejecutarse con las dependencias presentes (idealmente desde `backend/`).
+
+- Auditoría y listado de paquetes:
+  - Ejecutado: `npm audit --production` y `npm outdated` dentro de `backend/`.
+  - Resultados guardados: `audit-backend.json` (0 vulnerabilidades), `outdated-backend.json` (lista de paquetes con versiones más recientes).
+
+Recomendación inmediata y comandos reproducibles
+1) Levantar backend localmente y reintentar health-check (haz esto en una terminal):
 ```powershell
-# Se intentó llamar a http://127.0.0.1:8080/healthz pero el proceso de check devolvió código distinto de 0
-# Resultado del intento: Command exited with code 1
+cd .\backend
+# (opcional) exportar origen CORS en dev
+$env:CORS_ORIGIN = 'http://localhost:3000'
+npm start
+```
+En otra terminal:
+```powershell
+Invoke-WebRequest -Uri 'http://127.0.0.1:8080/healthz' -UseBasicParsing -TimeoutSec 5
+```
+2) Ejecutar test de conexión a BD usando `.env` real (desde `backend/` para aprovechar node_modules):
+```powershell
+# Si el .env del repo central está en ../base-datos-central/.env
+$env:CENTRAL_ENV_PATH = 'C:\ruta\a\base-datos-central\.env'
+cd .\backend
+node ..\test-db-connection.js
+```
+3) Consultar resultados de auditoría y paquetes desactualizados (archivos guardados):
+```powershell
+# Revisa los JSON generados en la raíz
+Get-Content .\audit-backend.json -Raw
+Get-Content .\outdated-backend.json -Raw
 ```
 
 Comentarios:
@@ -182,3 +248,65 @@ Comentarios:
 ---
 
 Estado final: 🟡 Degradado
+
+## Plan de acción — Plataforma Web (CRM)
+
+## Checklist inicial
+- Levantar backend local desde `backend/` y validar `/healthz`.
+- Ejecutar `test-db-connection.js` desde `backend/` con `.env` real.
+- Restringir CORS y asegurar JWT.
+
+## Problema principal
+- Backend Express no accesible localmente (ECONNREFUSED 127.0.0.1:8080); `.env` con placeholders y scripts ejecutados desde ruta incorrecta.
+
+## Objetivo
+- Levantar backend local de forma reproducible, verificar conexión a la BD central y asegurar políticas CORS/JWT.
+
+## Acciones inmediatas (0–24 h)
+1) Instalar dependencias y arrancar backend desde `backend/`:
+
+```powershell
+cd "C:\Users\J4vie\Desktop\alma gen\backend"
+npm install
+copy .env.example .env
+# editar .env con credenciales reales (PG*, JWT*, CORS_ORIGIN)
+npm start
+```
+
+2) Validar healthz desde otra terminal:
+
+```powershell
+Invoke-WebRequest -Uri 'http://127.0.0.1:8080/healthz' -UseBasicParsing -TimeoutSec 5
+```
+
+3) Ejecutar `test-db-connection.js` desde `backend/` para que node_modules estén disponibles:
+
+```powershell
+cd "C:\Users\J4vie\Desktop\alma gen\backend"
+node ..\test-db-connection.js --env "C:\ruta\a\base-datos-central\.env"
+```
+
+## Plan 7 días
+- Restringir CORS a dominios de producción y habilitar HTTPS en staging.
+- Asegurar `JWT_SECRET` y documentar intercambio de tokens entre servicios.
+- Reemplazar usos críticos de `localStorage` por sincronización server-backed o estrategias offline controladas.
+
+## Plan 30 días
+- Añadir CI: lint, tests y smoke tests que validen health y endpoints en PRs.
+- Versionar caché PWA y mejorar strategy de precache en `sw.js`.
+
+## Criterios de aceptación
+- `Invoke-WebRequest http://127.0.0.1:8080/healthz` devuelve 200 cuando backend está arriba.
+- `test-db-connection.js` muestra conexión exitosa y `current_user` esperado.
+- CORS bloquea orígenes no autorizados en staging/prod.
+
+## Riesgos y precauciones
+- No desplegar CORS permisivo a producción; probar primero en staging.
+- Rotar JWT sin plan de migración puede desconectar usuarios activos.
+
+## Estimados
+- Levantar backend y test DB: 1–3 horas.
+- CORS/JWT y CI básica: 2–5 días.
+
+## Responsable sugerido
+- Backend developer / DevOps: ejecutar y validar.
